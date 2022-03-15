@@ -1,0 +1,37 @@
+{
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot-ServerconfigApplication<serverconfig>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.serverconfig.ServerconfigApplication",
+      "projectName": "serverconfig",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-ClientApplication<client>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.client.ClientApplication",
+      "projectName": "client",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-OrderApplication<order>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.order.OrderApplication",
+      "projectName": "order",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}

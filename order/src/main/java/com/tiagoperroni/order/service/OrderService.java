@@ -89,7 +89,7 @@ public class OrderService {
     public List<OrderItems> prepareOrder(OrderRequest request) {
         var orderItems = new ArrayList<OrderItems>();
         for (ProductList product : request.getProductList()) {
-            var productResponse = this.getProductRequest(product.getId(), request.getQuantity());
+            var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
             this.validaStock(productResponse, request);
             var orderItem = new OrderItems();
             orderItem.setProductId(productResponse.getId());

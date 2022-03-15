@@ -1,5 +1,8 @@
 package com.tiagoperroni.client.controller;
 
+import java.util.Map;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.service.ClientService;
 
@@ -27,5 +30,10 @@ public class ClientController {
     public ResponseEntity<Client> getClient(@PathVariable Integer id) {
         logger.info("Recebendo requisição: {}", clientService.getClient(id));
         return new ResponseEntity<>(clientService.getClient(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/properties")
+    public ResponseEntity<Map<String, Object>> getClientProperties() throws JsonProcessingException {
+        return new ResponseEntity<>(clientService.getPropertiesDetails(), HttpStatus.OK);
     }
 }
