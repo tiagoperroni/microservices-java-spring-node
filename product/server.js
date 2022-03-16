@@ -1,7 +1,12 @@
 const express = require("express");
+const eurekaHelper = require('./eureka-helper.js');
+require('dotenv').config();
+const actuator = require('express-actuator');
+const actuatorOptions = require("./actuator-helper.js")
 
 const app = express();
 app.use(express.json());
+app.use(actuator(actuatorOptions));
 
 const products = [
   { id: 1, name: "Refri Cola", price: 7.98, stock: 100 },
@@ -28,4 +33,8 @@ function updateStock(id, stock) {
   }
 }
 
-app.listen(3232, () => console.log("Server on - Port 3232"));
+const PORT = process.env.SERVER_PORT || 3232;
+
+eurekaHelper.registerWithEureka('product-api', PORT)
+
+app.listen(PORT, () => console.log(`Server on - Port ${PORT}`));
