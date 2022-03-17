@@ -32,6 +32,17 @@
       "projectName": "order",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-DiscoveryserverApplication<discoveryserver>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.discoveryserver.DiscoveryserverApplication",
+      "projectName": "discoveryserver",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

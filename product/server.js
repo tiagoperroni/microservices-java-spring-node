@@ -15,6 +15,8 @@ const products = [
   { id: 4, name: "Refri Guaraná", price: 6.55, stock: 100 },
 ];
 
+console.table(products);
+
 app.get("/product/:id/:stock", (req, res) => {
   const { id, stock } = req.params;
   console.log(stock);

@@ -32,6 +32,7 @@ public class OrderService {
 
     /**
      * Realiza a criação de um novo pedido
+     * 
      * @param orderRequest
      * @return
      */
@@ -46,11 +47,13 @@ public class OrderService {
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
         orderResponse.setTotalPrice(this.formatDouble(orderItems));
         orderResponse.setOrderDate(LocalDateTime.now());
+        logger.info("Enviando detalhes do pedido: {}", orderResponse);
         return orderResponse;
     }
 
     /**
      * Requisição GET para api de Clientes por id pelo RestTemplate
+     * 
      * @param id
      * @param quantity
      * @return
@@ -58,19 +61,19 @@ public class OrderService {
 
     public Product getProductRequest(int id, int quantity) {
         logger.info("Enviando requisição para API PRODUTOS");
-        String urlProductApi = "http://localhost:3232/product/" + id + "/" + quantity;
+        String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
         ResponseEntity<Product[]> request = new RestTemplate().getForEntity(urlProductApi, Product[].class);
         logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody()[0]);
         return request.getBody()[0];
-
     }
 
     /**
      * Requisição GET para api de Clientes por id pelo Open Feign
+     * 
      * @param id
      * @return
      */
-    
+
     public Client getClientRequest(int id) {
         logger.info("Enviando requisição para API CLIENTES");
         Client client = clientFeignRequest.getClient(id).getBody();
@@ -82,6 +85,7 @@ public class OrderService {
 
     /**
      * Prepara a lista de produtos comprados pelo cliente
+     * 
      * @param request
      * @return
      */
@@ -90,7 +94,7 @@ public class OrderService {
         var orderItems = new ArrayList<OrderItems>();
         for (ProductList product : request.getProductList()) {
             var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
-            this.validaStock(productResponse, request);
+            this.validaStock(productResponse, product);
             var orderItem = new OrderItems();
             orderItem.setProductId(productResponse.getId());
             orderItem.setProductName(productResponse.getName());
@@ -104,19 +108,22 @@ public class OrderService {
 
     /**
      * Valida se existe estoque disponível
+     * 
      * @param product
      * @param request
      */
 
-    public void validaStock(Product product, OrderRequest request) {
-        if (product.getStock() < request.getQuantity()) {
+    public void validaStock(Product product, ProductList productList) {
+        if (product.getStock() < productList.getQuantity()) {
             throw new StockNotAvaibleException(
-                    "Quantidade acima do estoque do produto. Quantidade atual: " + product.getStock());
+                    String.format("Quantidade solicitada do produto %s está acima do estoque. Quantidade atual é %s",
+                            product.getName(), product.getStock()));
         }
     }
 
     /**
      * verifica se o cliente está ativo
+     * 
      * @param client
      */
 
@@ -149,9 +156,9 @@ public class OrderService {
      */
 
     public Integer totalQuantity(List<OrderItems> orderItems) {
-        int quantity = 0;   
+        int quantity = 0;
         for (OrderItems orderItem : orderItems) {
-            quantity += orderItem.getQuantity();          
+            quantity += orderItem.getQuantity();
         }
         return quantity;
     }
