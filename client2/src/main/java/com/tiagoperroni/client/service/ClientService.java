@@ -32,7 +32,6 @@ public class ClientService {
 
     public Client getClient(Integer id) {
         logger.info("Porta do microserviço: {}", environment.getProperty("local.server.port"));
-     
         for (Client client : this.getClients()) {
             if (client.getId() == id) {
                 return client;

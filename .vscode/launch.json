@@ -2,6 +2,12 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch ClientApplication2",
+      "request": "launch",
+      "mainClass": "com.tiagoperroni.client.ClientApplication2"
+    },
+    {
+      "type": "java",
       "name": "Spring Boot-ServerconfigApplication<serverconfig>",
       "request": "launch",
       "cwd": "${workspaceFolder}",

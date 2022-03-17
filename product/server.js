@@ -1,4 +1,9 @@
 const express = require("express");
+
+// ## zip
+const zipkin = require("./src/config/zipkin.config.js");
+var appzip = require('appmetrics-zipkin')(zipkin);
+
 const eurekaHelper = require('./eureka-helper.js');
 require('dotenv').config();
 const actuator = require('express-actuator');
@@ -8,7 +13,6 @@ const routes = require("./src/routes/product.routes.js");
 const app = express();
 app.use(express.json());
 app.use(actuator(actuatorOptions));
-
 app.use(routes);
 
 const PORT = process.env.SERVER_PORT || 3232;
