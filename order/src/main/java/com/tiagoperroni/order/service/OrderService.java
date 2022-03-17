@@ -59,12 +59,21 @@ public class OrderService {
      * @return
      */
 
-    public Product getProductRequest(int id, int quantity) {
+    private Product getProductRequest(String url, int id, int quantity) {
         logger.info("Enviando requisição para API PRODUTOS");
-        String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
-        ResponseEntity<Product[]> request = new RestTemplate().getForEntity(urlProductApi, Product[].class);
-        logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody()[0]);
-        return request.getBody()[0];
+        if (!url.equals("http://test")) {
+            String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
+            ResponseEntity<Product> request = new RestTemplate().getForEntity(urlProductApi, Product.class);
+            logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
+            return request.getBody();
+        }
+        else {
+            String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
+            Product request = new Product(1, "Refri Cola", 7.98, 15);
+            logger.info("Recebendo dados da API PRODUTOS: {}", request);
+            return request;
+        }
+
     }
 
     /**
@@ -93,7 +102,7 @@ public class OrderService {
     public List<OrderItems> prepareOrder(OrderRequest request) {
         var orderItems = new ArrayList<OrderItems>();
         for (ProductList product : request.getProductList()) {
-            var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
+            var productResponse = this.getProductRequest("http://test", product.getId(), product.getQuantity());
             this.validaStock(productResponse, product);
             var orderItem = new OrderItems();
             orderItem.setProductId(productResponse.getId());
@@ -108,12 +117,10 @@ public class OrderService {
 
     /**
      * Valida se existe estoque disponível
-     * 
      * @param product
-     * @param request
      */
 
-    public void validaStock(Product product, ProductList productList) {
+    private void validaStock(Product product, ProductList productList) {
         if (product.getStock() < productList.getQuantity()) {
             throw new StockNotAvaibleException(
                     String.format("Quantidade solicitada do produto %s está acima do estoque. Quantidade atual é %s",
@@ -127,7 +134,7 @@ public class OrderService {
      * @param client
      */
 
-    public void checkClientIsValid(Client client) {
+    private void checkClientIsValid(Client client) {
         if (!client.getIsActive()) {
             throw new ClientNotActiveException("Cliente não está ativo e não pode realizar pedidos.");
         }
@@ -139,7 +146,7 @@ public class OrderService {
      * @return total do pedido calculado
      */
 
-    public Double formatDouble(List<OrderItems> orderItems) {
+    private Double formatDouble(List<OrderItems> orderItems) {
         Double total = 0.0;
         String totalConvered = null;
         for (OrderItems orderItem : orderItems) {
@@ -155,7 +162,7 @@ public class OrderService {
      * @return a quantidade total do pedido
      */
 
-    public Integer totalQuantity(List<OrderItems> orderItems) {
+    private Integer totalQuantity(List<OrderItems> orderItems) {
         int quantity = 0;
         for (OrderItems orderItem : orderItems) {
             quantity += orderItem.getQuantity();

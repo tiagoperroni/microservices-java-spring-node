@@ -28,13 +28,4 @@ public class ProductController {
         return new ResponseEntity<>(orderService.makeOrder(request), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}/{quantity}")
-    public ResponseEntity<Product> getProduct(@PathVariable("id") Integer id, @PathVariable("quantity") Integer quantity) {
-        return new ResponseEntity<>(orderService.getProductRequest(id, quantity), HttpStatus.OK);
-    }
-
-    @GetMapping("/client/{id}")
-    public ResponseEntity<Client> gerClientById(@PathVariable("id") Integer id) {
-        return new ResponseEntity<>(orderService.getClientRequest(id), HttpStatus.OK);
-    }
 }

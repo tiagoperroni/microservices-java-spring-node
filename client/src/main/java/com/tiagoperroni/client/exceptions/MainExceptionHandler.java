@@ -1,4 +1,4 @@
-package com.tiagoperroni.client;
+package com.tiagoperroni.client.exceptions;
 
 import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.exceptions.MessageError;
