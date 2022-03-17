@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.netflix.discovery.converters.Auto;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
@@ -28,6 +29,9 @@ public class OrderService {
     @Autowired
     private ClientFeignRequest clientFeignRequest;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     /**
@@ -41,7 +45,9 @@ public class OrderService {
         logger.info("Recebendo novo pedido: {}", orderRequest);
         var orderResponse = new OrderResponse();
         orderResponse.setId(UUID.randomUUID().toString());
+
         orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
+
         var orderItems = this.prepareOrder(orderRequest);
         orderResponse.setItems(orderItems);
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
@@ -59,21 +65,13 @@ public class OrderService {
      * @return
      */
 
-    private Product getProductRequest(String url, int id, int quantity) {
+    public Product getProductRequest(int id, int quantity) {
         logger.info("Enviando requisição para API PRODUTOS");
-        if (!url.equals("http://test")) {
-            String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
-            ResponseEntity<Product> request = new RestTemplate().getForEntity(urlProductApi, Product.class);
-            logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
-            return request.getBody();
-        }
-        else {
-            String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
-            Product request = new Product(1, "Refri Cola", 7.98, 15);
-            logger.info("Recebendo dados da API PRODUTOS: {}", request);
-            return request;
-        }
 
+        String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
+        ResponseEntity<Product> request = this.restTemplate.getForEntity(urlProductApi, Product.class);
+        logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
+        return request.getBody();
     }
 
     /**
@@ -89,7 +87,6 @@ public class OrderService {
         logger.info("Recebendo dados da API CLIENTES: {}", client);
         this.checkClientIsValid(client);
         return client;
-
     }
 
     /**
@@ -102,7 +99,7 @@ public class OrderService {
     public List<OrderItems> prepareOrder(OrderRequest request) {
         var orderItems = new ArrayList<OrderItems>();
         for (ProductList product : request.getProductList()) {
-            var productResponse = this.getProductRequest("http://test", product.getId(), product.getQuantity());
+            var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
             this.validaStock(productResponse, product);
             var orderItem = new OrderItems();
             orderItem.setProductId(productResponse.getId());
