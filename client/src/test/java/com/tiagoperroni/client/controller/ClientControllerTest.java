@@ -1,6 +1,7 @@
 package com.tiagoperroni.client.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.service.ClientService;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,6 +38,16 @@ public class ClientControllerTest {
 
         assertEquals("Tiago Perroni", client.getBody().getName());
         assertTrue(client.getBody().getIsActive());
+    }
+
+    @Test
+    public void getClientById_Fail() {
+
+        when(this.clientService.getClient(anyInt())).thenThrow(ClientNotFoundException.class);
+
+        Exception exception = assertThrows(ClientNotFoundException.class, () ->
+                this.clientController.getClient(12));
+        assertEquals(exception.getClass(), ClientNotFoundException.class);
     }
 
     @Test
