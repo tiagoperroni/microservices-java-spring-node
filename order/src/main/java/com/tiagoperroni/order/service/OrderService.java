@@ -9,6 +9,7 @@ import com.netflix.discovery.converters.Auto;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
+import com.tiagoperroni.order.feign.ProductFeignRequest;
 import com.tiagoperroni.order.model.Client;
 import com.tiagoperroni.order.model.OrderItems;
 import com.tiagoperroni.order.model.OrderRequest;
@@ -19,7 +20,6 @@ import com.tiagoperroni.order.model.ProductList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -28,6 +28,9 @@ public class OrderService {
 
     @Autowired
     private ClientFeignRequest clientFeignRequest;
+
+    @Autowired
+    private ProductFeignRequest productFeignRequest;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -45,9 +48,7 @@ public class OrderService {
         logger.info("Recebendo novo pedido: {}", orderRequest);
         var orderResponse = new OrderResponse();
         orderResponse.setId(UUID.randomUUID().toString());
-
         orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
-
         var orderItems = this.prepareOrder(orderRequest);
         orderResponse.setItems(orderItems);
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
@@ -57,22 +58,24 @@ public class OrderService {
         return orderResponse;
     }
 
-    /**
-     * Requisição GET para api de Clientes por id pelo RestTemplate
-     * 
-     * @param id
-     * @param quantity
-     * @return
-     */
+    // /**
+    // * Requisição GET para api de Clientes por id pelo RestTemplate
+    // *
+    // * @param id
+    // * @param quantity
+    // * @return
+    // */
 
-    public Product getProductRequest(int id, int quantity) {
-        logger.info("Enviando requisição para API PRODUTOS");
+    // public Product getProductRequest(int id, int quantity) {
+    // logger.info("Enviando requisição para API PRODUTOS");
 
-        String urlProductApi = "http://localhost:3000/product/" + id + "/" + quantity;
-        ResponseEntity<Product> request = this.restTemplate.getForEntity(urlProductApi, Product.class);
-        logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
-        return request.getBody();
-    }
+    // String urlProductApi = "http://localhost:3000/product/" + id + "/" +
+    // quantity;
+    // ResponseEntity<Product> request =
+    // this.restTemplate.getForEntity(urlProductApi, Product.class);
+    // logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
+    // return request.getBody();
+    // }
 
     /**
      * Requisição GET para api de Clientes por id pelo Open Feign
@@ -87,6 +90,21 @@ public class OrderService {
         logger.info("Recebendo dados da API CLIENTES: {}", client);
         this.checkClientIsValid(client);
         return client;
+    }
+
+    /**
+     * Requisição GET para api de Products por id pelo Open Feign
+     * 
+     * @param id
+     * @param quantity
+     * @return
+     */
+
+    public Product getProductRequest(int id, int quantity) {
+        logger.info("Enviando requisição para API PRODUTOS");
+        Product responseProduct = this.productFeignRequest.getProductById(id, quantity).getBody();
+        logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
+        return responseProduct;
     }
 
     /**
@@ -114,6 +132,7 @@ public class OrderService {
 
     /**
      * Valida se existe estoque disponível
+     * 
      * @param product
      */
 

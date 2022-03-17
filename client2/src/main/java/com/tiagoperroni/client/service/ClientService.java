@@ -43,21 +43,21 @@ public class ClientService {
     @Bean
     public List<Client> getClients() {
         return new ArrayList<>(Arrays.asList(
-                new Client(1, "Tiago Perroni", "045.986.789-89", true),
-                new Client(2, "Maria Silva", "074.165.174-23", true),
-                new Client(3, "José Soares", "098.652.258-11", false)));
+                new Client(1, "Tiago Perroni", "045.986.789-89", true, environment.getProperty("local.server.port")),
+                new Client(2, "Maria Silva", "074.165.174-23", true, environment.getProperty("local.server.port")),
+                new Client(3, "José Soares", "098.652.258-11", false, environment.getProperty("local.server.port"))));
     }
 
-    public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {   
-        
+    public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {
+
         Properties properties = new Properties();
         properties.put("mailDetails", this.clientServiceConfig.getMailDetails());
-       
+
         var propertiesMap = new HashMap<String, Object>();
         propertiesMap.put("message", this.clientServiceConfig.getMsg());
         propertiesMap.put("buildVersion", this.clientServiceConfig.getBuildVersion());
-        propertiesMap.put("repo", this.clientServiceConfig.getRepo());        
-        propertiesMap.put("mailDetails", properties.toString());        
+        propertiesMap.put("repo", this.clientServiceConfig.getRepo());
+        propertiesMap.put("mailDetails", properties.toString());
         return propertiesMap;
     }
 }
