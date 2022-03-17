@@ -6,10 +6,11 @@ class ProductService {
           if (prod.id == id) {
             if (prod.stock >= stock) {
               prod.stock -= stock;
+              return prod;
             }
-         }
+        }
     }
-}
+  }
 }
 
 module.exports = new ProductService();

@@ -16,3 +16,5 @@ const PORT = process.env.SERVER_PORT || 3232;
 eurekaHelper.registerWithEureka('product-api', PORT)
 
 app.listen(PORT, () => console.log(`Server on - Port ${PORT}`));
+
+module.exports = app;
