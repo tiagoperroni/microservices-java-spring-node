@@ -1,4 +1,4 @@
-package com.tiagoperroni.client.exceptions;
+package com.tiagoperroni.order.exceptions;
 
 public class ClientNotFoundException extends RuntimeException {
 

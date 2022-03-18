@@ -21,4 +21,13 @@ public class ExceptionHandlerMain {
         var error = new MessageError(HttpStatus.BAD_REQUEST.value(), exception.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ClientNotFoundException.class)
+    public ResponseEntity<MessageError> clientNotFound(ClientNotFoundException exception) {
+        var error = new MessageError();
+        error.setStatusCode(HttpStatus.NOT_FOUND.value());
+        error.setMessage(exception.getMessage());
+        error.setErrorTime(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }

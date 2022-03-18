@@ -1,7 +1,5 @@
 package com.tiagoperroni.client.exceptions;
 
-import com.tiagoperroni.client.exceptions.ClientNotFoundException;
-import com.tiagoperroni.client.exceptions.MessageError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

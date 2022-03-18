@@ -9,7 +9,6 @@ import java.util.Properties;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
-import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.model.Client;
 
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public class ClientService {
                 return client;
             }
         }
-        throw new ClientNotFoundException(String.format("Cliente de id %s não encontrado.", id));
+        return null;
     }
 
     @Bean

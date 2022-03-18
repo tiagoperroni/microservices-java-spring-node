@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.discovery.converters.Auto;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
+import com.tiagoperroni.order.exceptions.ClientNotFoundException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
@@ -91,9 +93,13 @@ public class OrderService {
     public Client getClientRequest(int id) {
         logger.info("Enviando requisição para API CLIENTES");
         Client client = clientFeignRequest.getClient(id).getBody();
+        if (client != null) {
         logger.info("Recebendo dados da API CLIENTES: {}", client);
         this.checkClientIsValid(client);
         return client;
+    }
+        
+        throw new ClientNotFoundException(String.format("Client with id %s not was found.", id));
     }
 
     /**

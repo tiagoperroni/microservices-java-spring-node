@@ -37,7 +37,11 @@ public class ProductController {
         } else if (ex.getMessage().contains("client")) {
             error.put("error", "Microservice Client-Api is down.");
             return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
-        } else {
+        } else if (ex.getMessage().contains("with id")) {
+            error.put("error", ex.getMessage());
+            return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
+        }
+         else {
             error.put("error", ex.getMessage());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
