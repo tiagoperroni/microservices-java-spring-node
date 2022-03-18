@@ -3,6 +3,7 @@ package com.tiagoperroni.order.service;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
+import com.tiagoperroni.order.feign.ProductFeignRequest;
 import com.tiagoperroni.order.model.Client;
 import com.tiagoperroni.order.model.OrderRequest;
 import com.tiagoperroni.order.model.Product;
@@ -33,7 +34,10 @@ class OrderServiceTest {
     private ClientFeignRequest clientFeignRequest;
 
     @Mock
-    private RestTemplate restTemplate;
+    private ProductFeignRequest productFeignRequest;
+
+    //@Mock
+    //private RestTemplate restTemplate;
 
     @BeforeEach
     public void setUp() {
@@ -41,7 +45,7 @@ class OrderServiceTest {
     }
 
     @Test
-    public void testMakeOrder_Sucess() {
+    public void testMakeOrder_Success() {
 
         ProductList productList = new ProductList(1, 2);
         List<ProductList> productListList = new ArrayList<>();
@@ -50,11 +54,14 @@ class OrderServiceTest {
         request.setClientId(1);
         request.setClientId(1);
 
-        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", true);
+        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", true, null);
         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<Client>(client, HttpStatus.OK));
 
-        when(this.restTemplate.getForEntity(URL_SERVER_PRODUCT, Product.class))
-                .thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
+        Product product = new Product(1, "Refri Cola", 7.98, 15);
+        when(this.productFeignRequest.getProductById(anyInt(), anyInt())).thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
+
+        //when(this.restTemplate.getForEntity(URL_SERVER_PRODUCT, Product.class))
+                //.thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
 
         var orderResponse = this.orderService.makeOrder(request);
 
@@ -70,11 +77,14 @@ class OrderServiceTest {
         productListList.add(productList);
         OrderRequest request = new OrderRequest(productListList, 1, 1);
 
-        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", true);
+        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", true, null);
         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<Client>(client, HttpStatus.OK));
 
-        when(this.restTemplate.getForEntity("http://localhost:3000/product/1/20", Product.class))
-                .thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
+        Product product = new Product(1, "Refri Cola", 7.98, 15);
+        when(this.productFeignRequest.getProductById(anyInt(), anyInt())).thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
+
+        //when(this.restTemplate.getForEntity("http://localhost:3000/product/1/20", Product.class))
+                //.thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
 
         Exception exception = assertThrows(StockNotAvaibleException.class, () ->
                this.orderService.makeOrder(request));
@@ -93,7 +103,7 @@ class OrderServiceTest {
         request.setClientId(1);
         request.setClientId(1);
 
-        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", false);
+        Client client = new Client(1, "Tiago Perroni", "054.659.789-78", false, null);
         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<Client>(client, HttpStatus.OK));
 
         Exception exception = assertThrows(ClientNotActiveException.class, () ->
