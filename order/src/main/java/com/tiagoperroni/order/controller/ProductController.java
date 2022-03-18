@@ -3,10 +3,8 @@ package com.tiagoperroni.order.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.tiagoperroni.order.model.Client;
 import com.tiagoperroni.order.model.OrderRequest;
 import com.tiagoperroni.order.model.OrderResponse;
-import com.tiagoperroni.order.model.Product;
 import com.tiagoperroni.order.service.OrderService;
 
 import io.github.resilience4j.retry.annotation.Retry;
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
     @Autowired
-    private OrderService orderService;    
+    private OrderService orderService;
 
     @PostMapping
     @Retry(name = "retryForMakeOrder", fallbackMethod = "ordersFallBack")
@@ -36,13 +34,13 @@ public class ProductController {
         if (ex.getMessage().contains("product")) {
             error.put("error", "Microservice Product-Api is down.");
             return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
-        } else if(ex.getMessage().contains("client")) {
+        } else if (ex.getMessage().contains("client")) {
             error.put("error", "Microservice Client-Api is down.");
             return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
         } else {
             error.put("error", ex.getMessage());
             return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-            }
+    }
 
 }

@@ -2,7 +2,9 @@ package com.tiagoperroni.order.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.netflix.discovery.converters.Auto;
@@ -20,6 +22,8 @@ import com.tiagoperroni.order.model.ProductList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -101,7 +105,7 @@ public class OrderService {
      */
 
     public Product getProductRequest(int id, int quantity) {
-        logger.info("Enviando requisição para API PRODUTOS");     
+        logger.info("Enviando requisição para API PRODUTOS");
         Product responseProduct = this.productFeignRequest.getProductById(id, quantity).getBody();
         logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
         return responseProduct;
@@ -185,4 +189,5 @@ public class OrderService {
         }
         return quantity;
     }
+   
 }
