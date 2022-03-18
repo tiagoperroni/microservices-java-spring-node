@@ -101,7 +101,7 @@ public class OrderService {
      */
 
     public Product getProductRequest(int id, int quantity) {
-        logger.info("Enviando requisição para API PRODUTOS");
+        logger.info("Enviando requisição para API PRODUTOS");     
         Product responseProduct = this.productFeignRequest.getProductById(id, quantity).getBody();
         logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
         return responseProduct;

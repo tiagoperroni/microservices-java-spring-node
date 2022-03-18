@@ -69,6 +69,18 @@
 		</dependency>
 
 		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot2</artifactId>		
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+			<version>2.6.2</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>2.21.0</version>
@@ -93,7 +105,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 
 	<dependencyManagement>
 		<dependencies>

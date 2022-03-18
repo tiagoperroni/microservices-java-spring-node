@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 public class OrderRequest {
 
     private List<ProductList> productList = new ArrayList<>();
-    private Integer clientId;
-    private Integer quantity;  
-    
+    private Integer clientId; 
     
 }

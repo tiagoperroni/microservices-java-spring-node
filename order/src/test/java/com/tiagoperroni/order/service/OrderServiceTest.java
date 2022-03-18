@@ -19,7 +19,6 @@ import static org.mockito.Mockito.*;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ class OrderServiceTest {
         ProductList productList = new ProductList(1, 2);
         List<ProductList> productListList = new ArrayList<>();
         productListList.add(productList);
-        OrderRequest request = new OrderRequest(productListList, 1, 1);
+        OrderRequest request = new OrderRequest(productListList, 1);
         request.setClientId(1);
         request.setClientId(1);
 
@@ -75,7 +74,7 @@ class OrderServiceTest {
         ProductList productList = new ProductList(1, 20);
         List<ProductList> productListList = new ArrayList<>();
         productListList.add(productList);
-        OrderRequest request = new OrderRequest(productListList, 1, 1);
+        OrderRequest request = new OrderRequest(productListList, 1);
 
         Client client = new Client(1, "Tiago Perroni", "054.659.789-78", true, null);
         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<Client>(client, HttpStatus.OK));
@@ -99,7 +98,7 @@ class OrderServiceTest {
         ProductList productList = new ProductList(1, 4);
         List<ProductList> productListList = new ArrayList<>();
         productListList.add(productList);
-        OrderRequest request = new OrderRequest(productListList, 1, 1);
+        OrderRequest request = new OrderRequest(productListList, 1);
         request.setClientId(1);
         request.setClientId(1);
 

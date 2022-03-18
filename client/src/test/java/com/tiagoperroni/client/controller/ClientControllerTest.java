@@ -32,7 +32,7 @@ public class ClientControllerTest {
     @Test
     public void getClientById_Sucess() {
 
-        when(this.clientService.getClient(anyInt())).thenReturn(new Client(1, "Tiago Perroni", "054.564.987-23", true));
+        when(this.clientService.getClient(anyInt())).thenReturn(new Client(1, "Tiago Perroni", "054.564.987-23", true, null));
 
         ResponseEntity<Client> client = this.clientController.getClient(1);
 
