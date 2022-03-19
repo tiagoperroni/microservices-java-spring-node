@@ -2,19 +2,15 @@ package com.tiagoperroni.order.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.discovery.converters.Auto;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.ClientNotFoundException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
-import com.tiagoperroni.order.model.Client;
+import com.tiagoperroni.order.model.ClientRequest;
 import com.tiagoperroni.order.model.OrderItems;
 import com.tiagoperroni.order.model.OrderRequest;
 import com.tiagoperroni.order.model.OrderResponse;
@@ -24,8 +20,6 @@ import com.tiagoperroni.order.model.ProductList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -89,9 +83,9 @@ public class OrderService {
      * @return
      */
 
-    public Client getClientRequest(int id) {
+    public ClientRequest getClientRequest(int id) {
         logger.info("Enviando requisição para API CLIENTES");
-        Client client = clientFeignRequest.getClient(id).getBody();
+        ClientRequest client = clientFeignRequest.getClient(id).getBody();
         if (client != null) {
         logger.info("Recebendo dados da API CLIENTES: {}", client);
         this.checkClientIsValid(client);
@@ -159,7 +153,7 @@ public class OrderService {
      * @param client
      */
 
-    private void checkClientIsValid(Client client) {
+    private void checkClientIsValid(ClientRequest client) {
         if (!client.getIsActive()) {
             throw new ClientNotActiveException("Cliente não está ativo e não pode realizar pedidos.");
         }

@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.model.Client;
+import com.tiagoperroni.order.model.ClientRequest;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ClientFeignRequest {
     
     @GetMapping("/clients/{id}")
-    public ResponseEntity<Client> getClient(@PathVariable("id") Integer id);
+    public ResponseEntity<ClientRequest> getClient(@PathVariable("id") Integer id);
 }

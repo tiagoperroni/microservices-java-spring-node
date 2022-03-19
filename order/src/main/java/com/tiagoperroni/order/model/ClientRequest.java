@@ -7,12 +7,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Client {
+public class ClientRequest {
 
     private Integer id;
     private String name;
     private String cpf;
     private Boolean isActive;
     private String clientPort;
+
+    private AdressRequest adress;
     
 }

@@ -3,7 +3,7 @@ package com.tiagoperroni.client.controller;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tiagoperroni.client.model.Client;
+import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.service.ClientService;
 
 import org.slf4j.Logger;
@@ -27,9 +27,11 @@ public class ClientController {
     private Logger logger = LoggerFactory.getLogger(ClientController.class);
 
     @GetMapping("/{id}")
-    public ResponseEntity<Client> getClient(@PathVariable Integer id) {
-        logger.info("Recebendo requisição: {}", clientService.getClient(id));
-        return new ResponseEntity<>(clientService.getClient(id), HttpStatus.OK);
+    public ResponseEntity<ClientResponse> getClient(@PathVariable Integer id) {
+        this.clientService.getAdress("87710130", "290", "casa");
+        var clientResponse = clientService.getClient(id);        
+        logger.info("Recebendo requisição: {}", clientResponse);       
+        return new ResponseEntity<>(clientResponse, HttpStatus.OK);
     }
 
     @GetMapping("/properties")

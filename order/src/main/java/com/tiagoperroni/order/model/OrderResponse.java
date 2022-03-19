@@ -11,7 +11,7 @@ import lombok.Data;
 public class OrderResponse {
 
     private String id;
-    private Client client;
+    private ClientRequest client;
     private List<OrderItems> items;    
     private int quantityTotal;
     private Double totalPrice;
