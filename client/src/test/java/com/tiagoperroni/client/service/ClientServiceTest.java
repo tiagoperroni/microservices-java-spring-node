@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,11 +46,12 @@ public class ClientServiceTest {
         
         var clientResponse = new ClientResponse();
         clientResponse.setName("Tiago Perroni");
+        clientResponse.setId(1);
         when(this.clientService.getClient(1)).thenReturn(clientResponse);
 
         ClientResponse client = this.clientService.getClient(1);
         assertEquals("Tiago Perroni", client.getName());
-        assertEquals("Paranavaí", client.getAdressResponse().getCidade());
+        assertEquals("Paranavaí", client.getAdress().getCidade());
 
     }
 

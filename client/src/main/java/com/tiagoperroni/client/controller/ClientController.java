@@ -3,6 +3,7 @@ package com.tiagoperroni.client.controller;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.service.ClientService;
 
@@ -14,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,11 +30,15 @@ public class ClientController {
     private Logger logger = LoggerFactory.getLogger(ClientController.class);
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse> getClient(@PathVariable Integer id) {
-        this.clientService.getAdress("87710130", "290", "casa");
+    public ResponseEntity<ClientResponse> getClient(@PathVariable Integer id) {        
         var clientResponse = clientService.getClient(id);        
         logger.info("Recebendo requisição: {}", clientResponse);       
         return new ResponseEntity<>(clientResponse, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public ResponseEntity<ClientResponse> requestClient(@RequestBody ClientRequest request) {
+        return new ResponseEntity<>(clientService.clientRequest(request), HttpStatus.CREATED);
     }
 
     @GetMapping("/properties")

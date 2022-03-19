@@ -1,9 +1,6 @@
 package com.tiagoperroni.client.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -11,9 +8,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
 import com.tiagoperroni.client.config.IFeignAdress;
 import com.tiagoperroni.client.mapper.AdressMapper;
+import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
+import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
+import com.tiagoperroni.client.repository.ClientRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,13 +22,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ClientService {
-
-    @Autowired
-    private Environment environment;
+public class ClientService {    
 
     @Autowired
     private IFeignAdress feignAdress;
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private Environment environment;
 
     private Logger logger = LoggerFactory.getLogger(ClientService.class);
 
@@ -36,39 +39,28 @@ public class ClientService {
     private ClientServiceConfig clientServiceConfig;
 
     public ClientResponse getClient(Integer id) {
-        logger.info("Microservice port: {}", environment.getProperty("local.server.port"));
-
-        for (ClientResponse client : this.getClients()) {
-            if (client.getId() == id) {
-                return client;
-            }
-        }
-        return null;
-    }
+        logger.info("Service: Received a client request with id: {}", id);
+        var client = this.clientRepository.findById(id).orElse(null);       
+        return client;
+    }  
     
-    public List<ClientResponse> getClients() {
-        var adressResponse = this.getAdress("87710140", "290", "casa");
-        var clientResponse = new ClientResponse();
-        clientResponse.setId(1);
-        clientResponse.setName("Tiago Perroni");
-        clientResponse.setCpf("052.456.987-23");
-        clientResponse.setIsActive(true);
+    public ClientResponse clientRequest(ClientRequest request) {
+        logger.info("Service: Prepare client response with request: {}", request);
+        var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
+        logger.info("Service: Prepare client response with Client Mapper");
+        var clientResponse = ClientMapper.convert(request, adressResponse); 
         clientResponse.setClientPort(this.environment.getProperty("server.port"));
-        clientResponse.setAdress(adressResponse);
-        return new ArrayList<>(Arrays.asList(clientResponse));
-              
+        logger.info("Service: Sending client response with response: {}", clientResponse);        
+        return this.clientRepository.save(clientResponse);    
     }
 
-    public AdressResponse getAdress(String cep, String numero, String complemento) {
-        logger.info("Enviando requisição de endereço cep: {}", cep);
-        AdressRequest request = this.feignAdress.getAdress(cep).getBody();
-        logger.info("Exibindo endereço recebido: {}", request);
-        var adressResponse = AdressMapper.convert(request, numero, complemento);
-        logger.info("Enviando endereço completo: {}", adressResponse);
+    public AdressResponse getAdress(String cep, String number, String complement) {
+        logger.info("Service: Prepare Adress Response with cep: {}, number: {}, complement: {} ", cep, number, complement);  
+        AdressRequest request = this.feignAdress.getAdress(cep).getBody();        
+        var adressResponse = AdressMapper.convert(request, number, complement);
+        logger.info("Service: Sending client Adress Response with response: {}", adressResponse);
         return adressResponse;
-      
-
-    }
+    }    
 
     public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {
 
