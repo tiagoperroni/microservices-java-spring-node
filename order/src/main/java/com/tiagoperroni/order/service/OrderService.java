@@ -77,8 +77,7 @@ public class OrderService {
 
     // String urlProductApi = "http://localhost:3000/product/" + id + "/" +
     // quantity;
-    // ResponseEntity<Product> request =
-    // this.restTemplate.getForEntity(urlProductApi, Product.class);
+    // ResponseEntity<Product> request = this.restTemplate.getForEntity(urlProductApi, Product.class);
     // logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
     // return request.getBody();
     // }

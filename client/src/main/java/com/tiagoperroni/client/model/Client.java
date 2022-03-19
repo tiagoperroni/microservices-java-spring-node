@@ -13,6 +13,6 @@ public class Client {
     private String name;
     private String cpf;
     private Boolean isActive;
-    private String clientPort;
+    private String clientPort;  
     
 }

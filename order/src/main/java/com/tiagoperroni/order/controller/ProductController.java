@@ -27,7 +27,7 @@ public class ProductController {
     @Retry(name = "retryForMakeOrder", fallbackMethod = "ordersFallBack")
     public ResponseEntity<OrderResponse> makeOrder(@RequestBody OrderRequest request) {
         return new ResponseEntity<>(orderService.makeOrder(request), HttpStatus.CREATED);
-    }
+    }    
 
     private ResponseEntity<Map<String, String>> ordersFallBack(Throwable ex) {
         var error = new HashMap<String, String>();
