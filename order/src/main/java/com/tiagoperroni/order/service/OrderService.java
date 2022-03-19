@@ -33,7 +33,7 @@ public class OrderService {
     private ProductFeignRequest productFeignRequest;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private ClientLoginService clientLoginService;
 
     private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -44,18 +44,22 @@ public class OrderService {
      * @return
      */
 
-    public OrderResponse makeOrder(OrderRequest orderRequest) {
-        logger.info("Recebendo novo pedido: {}", orderRequest);
-        var orderResponse = new OrderResponse();
-        orderResponse.setId(UUID.randomUUID().toString());
-        orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
-        var orderItems = this.prepareOrder(orderRequest);
-        orderResponse.setItems(orderItems);
-        orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
-        orderResponse.setTotalPrice(this.formatDouble(orderItems));
-        orderResponse.setOrderDate(LocalDateTime.now());
-        logger.info("Enviando detalhes do pedido: {}", orderResponse);
-        return orderResponse;
+    public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
+        if (token.equals(this.clientLoginService.token)) {
+            logger.info("Recebendo novo pedido: {}", orderRequest);
+            var orderResponse = new OrderResponse();
+            orderResponse.setId(UUID.randomUUID().toString());
+            orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
+            var orderItems = this.prepareOrder(orderRequest);
+            orderResponse.setItems(orderItems);
+            orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
+            orderResponse.setTotalPrice(this.formatDouble(orderItems));
+            orderResponse.setOrderDate(LocalDateTime.now());
+            logger.info("Enviando detalhes do pedido: {}", orderResponse);
+            return orderResponse;
+        }
+        return null;
+        
     }
 
     // /**

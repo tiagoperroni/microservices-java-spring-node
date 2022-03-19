@@ -15,6 +15,7 @@ import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
 import com.tiagoperroni.client.model.Client;
+import com.tiagoperroni.client.model.ClientLoginCpf;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.repository.ClientRepository;
@@ -92,6 +93,13 @@ public class ClientService {
         if (client != null) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
         }
+       
+    }
+
+    public ClientResponse findClientByCpf(ClientLoginCpf cpf) {
+        var client = this.clientRepository.findByCpf(cpf.getCpf()).orElse(null);
+        return client;
+       
     }
 
     public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {
