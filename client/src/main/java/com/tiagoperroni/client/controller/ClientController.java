@@ -1,5 +1,6 @@
 package com.tiagoperroni.client.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.github.resilience4j.retry.annotation.Retry;
+
 @RestController
 @RequestMapping("/clients")
 public class ClientController {
@@ -37,8 +40,15 @@ public class ClientController {
     }
 
     @PostMapping
+    @Retry(name = "requestAdressClient", fallbackMethod = "requestAdressClientFallback")
     public ResponseEntity<ClientResponse> requestClient(@RequestBody ClientRequest request) {
         return new ResponseEntity<>(clientService.clientRequest(request), HttpStatus.CREATED);
+    }
+
+    public ResponseEntity<Map<String, String>> requestAdressClientFallback(Throwable ex) {
+        var error = new HashMap<String, String>();
+        error.put("Error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @GetMapping("/properties")
