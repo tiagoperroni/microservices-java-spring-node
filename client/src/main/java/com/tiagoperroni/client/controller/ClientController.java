@@ -33,22 +33,29 @@ public class ClientController {
     private Logger logger = LoggerFactory.getLogger(ClientController.class);
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse> getClient(@PathVariable Integer id) {        
-        var clientResponse = clientService.getClient(id);        
-        logger.info("Recebendo requisição: {}", clientResponse);       
+    public ResponseEntity<ClientResponse> getClient(@PathVariable Integer id) {
+        var clientResponse = clientService.getClient(id);
+        logger.info("Recebendo requisição: {}", clientResponse);
         return new ResponseEntity<>(clientResponse, HttpStatus.OK);
     }
 
     @PostMapping
     @Retry(name = "requestAdressClient", fallbackMethod = "requestAdressClientFallback")
     public ResponseEntity<ClientResponse> requestClient(@RequestBody ClientRequest request) {
-        return new ResponseEntity<>(clientService.clientRequest(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(clientService.saveClient(request), HttpStatus.CREATED);
     }
 
     public ResponseEntity<Map<String, String>> requestAdressClientFallback(Throwable ex) {
         var error = new HashMap<String, String>();
-        error.put("Error", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
+        if (ex.getMessage().contains("Already exists a client with the CPF informed.")) {
+            error.put("Error", ex.getMessage());
+            error.put("StatusCode", "400");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        } else {
+            error.put("Error", ex.getMessage());          
+            error.put("StatusCode", "503");          
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/properties")

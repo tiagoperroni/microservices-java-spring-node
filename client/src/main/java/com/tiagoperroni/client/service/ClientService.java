@@ -3,10 +3,12 @@ package com.tiagoperroni.client.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
 import com.tiagoperroni.client.config.IFeignAdress;
+import com.tiagoperroni.client.exceptions.DuplicatedClientException;
 import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
@@ -44,8 +46,9 @@ public class ClientService {
         return client;
     }  
     
-    public ClientResponse clientRequest(ClientRequest request) {
+    public ClientResponse saveClient(ClientRequest request) {
         logger.info("Service: Prepare client response with request: {}", request);
+        this.verifyClientExists(request.getCpf());
         var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
         logger.info("Service: Prepare client response with Client Mapper");
         var clientResponse = ClientMapper.convert(request, adressResponse); 
@@ -60,7 +63,14 @@ public class ClientService {
         var adressResponse = AdressMapper.convert(request, number, complement);
         logger.info("Service: Sending client Adress Response with response: {}", adressResponse);
         return adressResponse;
-    }    
+    }
+
+    public void verifyClientExists(String cpf) {
+        var client = this.clientRepository.findByCpf(cpf).orElse(null);
+        if (client != null) {
+            throw new DuplicatedClientException("Already exists a client with the CPF informed.");
+        }
+    }
 
     public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {
 

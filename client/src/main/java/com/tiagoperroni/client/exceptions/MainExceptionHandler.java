@@ -18,4 +18,13 @@ public class MainExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(DuplicatedClientException.class)
+    public ResponseEntity<MessageError> clientNotFound(DuplicatedClientException exception) {
+        var error = new MessageError();
+        error.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }
