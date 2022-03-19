@@ -8,23 +8,26 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
 import com.tiagoperroni.client.config.IFeignAdress;
+import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.exceptions.DuplicatedClientException;
 import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
+import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.repository.ClientRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ClientService {    
+public class ClientService {
 
     @Autowired
     private IFeignAdress feignAdress;
@@ -42,30 +45,49 @@ public class ClientService {
 
     public ClientResponse getClient(Integer id) {
         logger.info("Service: Received a client request with id: {}", id);
-        var client = this.clientRepository.findById(id).orElse(null);       
+        var client = this.clientRepository.findById(id).orElse(null);
         return client;
-    }  
-    
+    }
+
     public ClientResponse saveClient(ClientRequest request) {
         logger.info("Service: Prepare client response with request: {}", request);
-        this.verifyClientExists(request.getCpf());
+        this.verifyClientCpfAlreadyExists(request.getCpf());
         var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
         logger.info("Service: Prepare client response with Client Mapper");
-        var clientResponse = ClientMapper.convert(request, adressResponse); 
+        var clientResponse = ClientMapper.convert(request, adressResponse);
         clientResponse.setClientPort(this.environment.getProperty("server.port"));
-        logger.info("Service: Sending client response with response: {}", clientResponse);        
-        return this.clientRepository.save(clientResponse);    
+        logger.info("Service: Sending client response with response: {}", clientResponse);
+        return this.clientRepository.save(clientResponse);
+    }
+
+    public ClientResponse updateClient(Integer id, ClientRequest request) {
+        var client = this.verifyIfClientWasFound(id);     
+        if (client.getCpf().equals(request.getCpf())) {
+            BeanUtils.copyProperties(request, client);
+            return this.clientRepository.save(client);
+        }
+        throw new DuplicatedClientException("Already exists a client with the CPF informed.");
     }
 
     public AdressResponse getAdress(String cep, String number, String complement) {
-        logger.info("Service: Prepare Adress Response with cep: {}, number: {}, complement: {} ", cep, number, complement);  
-        AdressRequest request = this.feignAdress.getAdress(cep).getBody();        
+        logger.info("Service: Prepare Adress Response with cep: {}, number: {}, complement: {} ", cep, number,
+                complement);
+        AdressRequest request = this.feignAdress.getAdress(cep).getBody();
         var adressResponse = AdressMapper.convert(request, number, complement);
         logger.info("Service: Sending client Adress Response with response: {}", adressResponse);
         return adressResponse;
     }
 
-    public void verifyClientExists(String cpf) {
+    public ClientResponse verifyIfClientWasFound(Integer id) {
+        var client = this.getClient(id);
+        System.out.println(client);
+        if (client == null) {
+            throw new ClientNotFoundException(String.format("Not found a client with id %s ", id));
+        }
+        return client;
+    }
+
+    public void verifyClientCpfAlreadyExists(String cpf) {
         var client = this.clientRepository.findByCpf(cpf).orElse(null);
         if (client != null) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
