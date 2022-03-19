@@ -60,6 +60,17 @@
       "projectName": "gateway",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-AddressApplication<address>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.address.AddressApplication",
+      "projectName": "address",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }
