@@ -10,17 +10,19 @@ import com.tiagoperroni.order.service.ClientLoginService;
 import com.tiagoperroni.order.service.OrderService;
 
 import io.github.resilience4j.retry.annotation.Retry;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Api(tags = "Products")
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
@@ -33,12 +35,14 @@ public class OrderController {
 
     //private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
-    @PostMapping("/login")  
+    @ApiOperation(value = "Faça o login aqui para gerar o Token - Necessário Cadastro")
+    @PostMapping("/login") 
     public ResponseEntity<String> clientLogin(@RequestBody ClientLogin clientLogin) {
         //logger.info("New client login was received with cpf: {}", cpf);
         return new ResponseEntity<>(this.clientLoginService.clientLoginService(clientLogin), HttpStatus.ACCEPTED);
     } 
 
+    @ApiOperation(value = "Faça seu pedido aqui - Necessário login e para gerar Token")
     @PostMapping
     @Retry(name = "retryForMakeOrder", fallbackMethod = "ordersFallBack")
     public ResponseEntity<OrderResponse> makeOrder(@RequestBody OrderRequest request, @RequestParam String token) {
