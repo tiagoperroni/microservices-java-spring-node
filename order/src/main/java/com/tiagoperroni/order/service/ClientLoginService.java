@@ -64,7 +64,7 @@ public class ClientLoginService {
      * @param clientLogin
      */
     public void verifyPassword(ClientRequest clientRequest, ClientLogin clientLogin) {           
-        if (passwordEncoder.matches(clientLogin.getPassword(), clientRequest.getPassword())) {
+        if (!passwordEncoder.matches(clientLogin.getPassword(), clientRequest.getPassword())) {
             throw new InvalidPasswordException("The password informed do not math with this e-mail. Try again!");
         }
     }
