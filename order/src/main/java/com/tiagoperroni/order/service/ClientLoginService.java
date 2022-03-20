@@ -31,8 +31,9 @@ public class ClientLoginService {
      */
 
     public String clientLoginService(ClientLogin clientLogin) {
-        var response = this.feignRequest.clientLogin(clientLogin).getBody();
-       this.verifyPassword(response, clientLogin);
+       try {
+           var response = this.feignRequest.clientLogin(clientLogin).getBody();
+           this.verifyPassword(response, clientLogin);
         if (response != null) {
             String token = UUID.randomUUID().toString();
             token += UUID.randomUUID().toString();
@@ -43,7 +44,15 @@ public class ClientLoginService {
             this.clientLoginTokenRepository.save(clientLoginToken);
             return token;
         }
-         throw new ClientNotFoundException(String.format("No client was found with e-mail %s.", clientLogin.getEmail()));        
+       } catch (Exception e) {
+           if (e.getMessage().contains("Not found client with")) {
+                throw new ClientNotFoundException(String.format("Not found client with the e-mail %s.", clientLogin.getEmail()));
+           } else {
+                throw new ClientNotFoundException(String.format(e.getMessage()));
+           }
+       }
+              
+       return null;               
     }
 
     /**

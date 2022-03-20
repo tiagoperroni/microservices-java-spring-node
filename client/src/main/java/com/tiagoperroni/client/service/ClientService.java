@@ -42,15 +42,15 @@ public class ClientService {
     @Autowired
     private ClientServiceConfig clientServiceConfig;
 
-    public ClientResponse getClient(Integer id) {
-        logger.info("Service: Received a client request with id: {}", id);
-        var client = this.clientRepository.findById(id).orElse(null);
+    public ClientResponse getClient(String email) {
+        logger.info("Service: Received a client request with id: {}", email);
+        var client = this.clientRepository.findByEmail(email).orElse(null);
         return ClientMapper.convertFromClient(client);
     }
 
     public ClientResponse saveClient(ClientRequest request) {
         logger.info("Service: Prepare client response with request: {}", request);
-        this.verifyClientCpfAlreadyExists(request.getCpf());
+        this.verifyClientCpfAndEmailAlreadyExists(request.getCpf(), request.getEmail());
         var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
         logger.info("Service: Prepare client response with Client Mapper");
         var client = ClientMapper.convertFromClientRequest(request, adressResponse);
@@ -59,8 +59,8 @@ public class ClientService {
         return ClientMapper.convertFromClient(this.clientRepository.save(client));
     }
 
-    public String updateClient(Integer id, ClientRequest request) {
-        var client = this.verifyIfClientWasFound(id);     
+    public String updateClient(String email, ClientRequest request) {
+        var client = this.verifyIfClientWasFound(email);
         if (client.getCpf().equals(request.getCpf())) {
             BeanUtils.copyProperties(request, client);
             this.clientRepository.save(ClientMapper.convertFromClientResponse(client));
@@ -78,26 +78,33 @@ public class ClientService {
         return adressResponse;
     }
 
-    public ClientResponse verifyIfClientWasFound(Integer id) {
-        var client = this.getClient(id);     
+    public ClientResponse verifyIfClientWasFound(String email) {
+        var client = this.getClient(email);
         if (client == null) {
-            throw new ClientNotFoundException(String.format("Not found a client with id %s ", id));
+            throw new ClientNotFoundException(String.format("Not found a client with id %s ", email));
         }
         return client;
     }
 
-    public void verifyClientCpfAlreadyExists(String cpf) {
-        var client = this.clientRepository.findByCpf(cpf).orElse(null);
-        if (client != null) {
+    public void verifyClientCpfAndEmailAlreadyExists(String cpf, String email) {
+        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);
+        var clientEmail = this.clientRepository.findByCpf(cpf).orElse(null);
+        if (clientCpf != null) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
+        } else {
+            if (clientEmail != null) {
+                throw new DuplicatedClientException("Already exists a client with the e-mail informed.");
+            }
         }
-       
+
     }
 
     public ClientResponse findByEmail(ClientLogin clientLogin) {
-        var client = this.clientRepository.findByEmail(clientLogin.getEmail()).orElse(null);
+        var client = this.clientRepository.findByEmail(clientLogin.getEmail())
+                .orElseThrow(() -> new ClientNotFoundException(
+                        String.format("Not found client with the e-mail %s.", clientLogin.getEmail())));
         return ClientMapper.convertFromClient(client);
-       
+
     }
 
     public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {

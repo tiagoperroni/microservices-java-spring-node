@@ -50,7 +50,7 @@ public class OrderService {
             this.verifyToken(orderRequest, token);    
             var orderResponse = new OrderResponse();
             orderResponse.setId(UUID.randomUUID().toString());
-            orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
+            orderResponse.setClient(this.getClientRequest(orderRequest.getClientEmail()));
             var orderItems = this.prepareOrder(orderRequest);
             orderResponse.setItems(orderItems);
             orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
@@ -85,16 +85,16 @@ public class OrderService {
      * @param id
      * @return
      */
-    public ClientRequest getClientRequest(int id) {
+    public ClientRequest getClientRequest(String email) {
         logger.info("Enviando requisição para API CLIENTES");
-        ClientRequest client = clientFeignRequest.getClient(id).getBody();
+        ClientRequest client = clientFeignRequest.getClient(email).getBody();
         if (client != null) {
         logger.info("Recebendo dados da API CLIENTES: {}", client);
         this.checkClientIsValid(client);
         return client;
     }
         
-        throw new ClientNotFoundException(String.format("Client with id %s not was found.", id));
+        throw new ClientNotFoundException(String.format("Client with e-mail %s not was found.", email));
     }
 
     /**

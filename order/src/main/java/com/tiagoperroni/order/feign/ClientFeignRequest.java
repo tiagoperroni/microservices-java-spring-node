@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "client")
 public interface ClientFeignRequest {
     
-    @GetMapping("/clients/{id}")
-    public ResponseEntity<ClientRequest> getClient(@PathVariable("id") Integer id);
+    @GetMapping("/clients/{email}")
+    public ResponseEntity<ClientRequest> getClient(@PathVariable("email") String email);
 
     @PostMapping("/clients/login")
     public ResponseEntity<ClientRequest> clientLogin(@RequestBody ClientLogin clientLogin);
