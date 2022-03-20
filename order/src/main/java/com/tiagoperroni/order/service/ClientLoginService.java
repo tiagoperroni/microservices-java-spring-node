@@ -13,6 +13,7 @@ import com.tiagoperroni.order.model.OrderRequest;
 import com.tiagoperroni.order.repository.ClientLoginTokenRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +24,8 @@ public class ClientLoginService {
 
     @Autowired
     private ClientFeignRequest feignRequest; 
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     
     /**
      * inicio de login do client
@@ -32,9 +35,9 @@ public class ClientLoginService {
 
     public String clientLoginService(ClientLogin clientLogin) {
        try {
-           var response = this.feignRequest.clientLogin(clientLogin).getBody();
-           this.verifyPassword(response, clientLogin);
-        if (response != null) {
+           var clientRequest = this.feignRequest.clientLogin(clientLogin).getBody();
+           this.verifyPassword(clientRequest, clientLogin);
+        if (clientRequest != null) {
             String token = UUID.randomUUID().toString();
             token += UUID.randomUUID().toString();
             var clientLoginToken = new ClientLoginToken();
@@ -60,9 +63,8 @@ public class ClientLoginService {
      * @param clientRequest
      * @param clientLogin
      */
-    public void verifyPassword(ClientRequest clientRequest, ClientLogin clientLogin) {
-        System.out.println(clientRequest +  " " + clientLogin);
-        if (!clientRequest.getPassword().equals(clientLogin.getPassword())) {
+    public void verifyPassword(ClientRequest clientRequest, ClientLogin clientLogin) {           
+        if (passwordEncoder.matches(clientLogin.getPassword(), clientRequest.getPassword())) {
             throw new InvalidPasswordException("The password informed do not math with this e-mail. Try again!");
         }
     }

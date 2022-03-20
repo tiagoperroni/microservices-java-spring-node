@@ -6,7 +6,11 @@ import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 public class ClientMapper {
+
+    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public static Client convertFromClientRequest(ClientRequest request, AdressResponse adressResponse) {
         var clientResponse = new Client();
@@ -14,7 +18,7 @@ public class ClientMapper {
         clientResponse.setCpf(request.getCpf());
         clientResponse.setEmail(request.getEmail());
         verifyPassword(request);
-        clientResponse.setPassword(request.getPassword());
+        clientResponse.setPassword(passwordEncoder.encode(request.getPassword()));
         clientResponse.setIsActive(true);
         clientResponse.setAdress(adressResponse);       
         return clientResponse;
