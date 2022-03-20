@@ -20,7 +20,16 @@ public class MainExceptionHandler {
     }
 
     @ExceptionHandler(DuplicatedClientException.class)
-    public ResponseEntity<MessageError> clientNotFound(DuplicatedClientException exception) {
+    public ResponseEntity<MessageError> clientDuplicated(DuplicatedClientException exception) {
+        var error = new MessageError();
+        error.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(PasswordNotMatchException.class)
+    public ResponseEntity<MessageError> passwordDoNotMatch(PasswordNotMatchException exception) {
         var error = new MessageError();
         error.setStatusCode(HttpStatus.BAD_REQUEST.value());
         error.setMessage(exception.getMessage());

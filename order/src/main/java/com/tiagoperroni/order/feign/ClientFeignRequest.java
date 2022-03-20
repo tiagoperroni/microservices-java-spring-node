@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.model.ClientLoginCpf;
+import com.tiagoperroni.order.model.ClientLogin;
 import com.tiagoperroni.order.model.ClientRequest;
 
 import org.springframework.cloud.openfeign.FeignClient;
@@ -17,5 +17,5 @@ public interface ClientFeignRequest {
     public ResponseEntity<ClientRequest> getClient(@PathVariable("id") Integer id);
 
     @PostMapping("/clients/login")
-    public ResponseEntity<ClientRequest> clientLogin(@RequestBody ClientLoginCpf cpf);
+    public ResponseEntity<ClientRequest> clientLogin(@RequestBody ClientLogin clientLogin);
 }

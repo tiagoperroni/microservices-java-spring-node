@@ -12,6 +12,8 @@ public class ClientRequest {
     private Integer id;
     private String name;
     private String cpf;
+    private String email;
+    private String password;
     private Boolean isActive;
     private String clientPort;
 

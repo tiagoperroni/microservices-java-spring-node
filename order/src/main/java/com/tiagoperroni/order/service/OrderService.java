@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.ClientNotFoundException;
+import com.tiagoperroni.order.exceptions.InvalidTokenException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
@@ -45,8 +46,8 @@ public class OrderService {
      */
 
     public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
-        if (token.equals(this.clientLoginService.token)) {
-            logger.info("Recebendo novo pedido: {}", orderRequest);
+        logger.info("Recebendo novo pedido: {}", orderRequest);   
+            this.verifyToken(orderRequest, token);    
             var orderResponse = new OrderResponse();
             orderResponse.setId(UUID.randomUUID().toString());
             orderResponse.setClient(this.getClientRequest(orderRequest.getClientId()));
@@ -57,8 +58,6 @@ public class OrderService {
             orderResponse.setOrderDate(LocalDateTime.now());
             logger.info("Enviando detalhes do pedido: {}", orderResponse);
             return orderResponse;
-        }
-        return null;
         
     }
 
@@ -86,7 +85,6 @@ public class OrderService {
      * @param id
      * @return
      */
-
     public ClientRequest getClientRequest(int id) {
         logger.info("Enviando requisição para API CLIENTES");
         ClientRequest client = clientFeignRequest.getClient(id).getBody();
@@ -191,6 +189,20 @@ public class OrderService {
             quantity += orderItem.getQuantity();
         }
         return quantity;
+    }
+
+    /**
+     * verificando se token foi informado
+     * @param orderRequest
+     * @param token
+     */
+
+    public void verifyToken(OrderRequest orderRequest, String token) {
+        if (token.equals(null)) {
+            throw new InvalidTokenException("The token must be informed.");
+        } else {
+            this.clientLoginService.verifyTokenIsValid(orderRequest, token);
+        }
     }
    
 }

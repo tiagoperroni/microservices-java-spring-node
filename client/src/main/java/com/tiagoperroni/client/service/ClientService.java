@@ -3,7 +3,6 @@ package com.tiagoperroni.client.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
@@ -14,8 +13,7 @@ import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
-import com.tiagoperroni.client.model.Client;
-import com.tiagoperroni.client.model.ClientLoginCpf;
+import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.repository.ClientRepository;
@@ -47,7 +45,7 @@ public class ClientService {
     public ClientResponse getClient(Integer id) {
         logger.info("Service: Received a client request with id: {}", id);
         var client = this.clientRepository.findById(id).orElse(null);
-        return client;
+        return ClientMapper.convertFromClient(client);
     }
 
     public ClientResponse saveClient(ClientRequest request) {
@@ -55,17 +53,18 @@ public class ClientService {
         this.verifyClientCpfAlreadyExists(request.getCpf());
         var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
         logger.info("Service: Prepare client response with Client Mapper");
-        var clientResponse = ClientMapper.convert(request, adressResponse);
-        clientResponse.setClientPort(this.environment.getProperty("server.port"));
-        logger.info("Service: Sending client response with response: {}", clientResponse);
-        return this.clientRepository.save(clientResponse);
+        var client = ClientMapper.convertFromClientRequest(request, adressResponse);
+        client.setClientPort(this.environment.getProperty("server.port"));
+        logger.info("Service: Sending client response with response: {}", client);
+        return ClientMapper.convertFromClient(this.clientRepository.save(client));
     }
 
-    public ClientResponse updateClient(Integer id, ClientRequest request) {
+    public String updateClient(Integer id, ClientRequest request) {
         var client = this.verifyIfClientWasFound(id);     
         if (client.getCpf().equals(request.getCpf())) {
             BeanUtils.copyProperties(request, client);
-            return this.clientRepository.save(client);
+            this.clientRepository.save(ClientMapper.convertFromClientResponse(client));
+            return "Client was update with success. " + client;
         }
         throw new DuplicatedClientException("Already exists a client with the CPF informed.");
     }
@@ -80,8 +79,7 @@ public class ClientService {
     }
 
     public ClientResponse verifyIfClientWasFound(Integer id) {
-        var client = this.getClient(id);
-        System.out.println(client);
+        var client = this.getClient(id);     
         if (client == null) {
             throw new ClientNotFoundException(String.format("Not found a client with id %s ", id));
         }
@@ -96,9 +94,9 @@ public class ClientService {
        
     }
 
-    public ClientResponse findClientByCpf(ClientLoginCpf cpf) {
-        var client = this.clientRepository.findByCpf(cpf.getCpf()).orElse(null);
-        return client;
+    public ClientResponse findByEmail(ClientLogin clientLogin) {
+        var client = this.clientRepository.findByEmail(clientLogin.getEmail()).orElse(null);
+        return ClientMapper.convertFromClient(client);
        
     }
 

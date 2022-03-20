@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tiagoperroni.client.model.ClientLoginCpf;
+import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.service.ClientService;
@@ -49,12 +49,12 @@ public class ClientController {
 
     @PostMapping("/login")
     //@Retry(name = "requestAdressClient", fallbackMethod = "requestAdressClientFallback")
-    public ResponseEntity<ClientResponse> getClientByCpf(@RequestBody ClientLoginCpf cpf) {
-        return new ResponseEntity<>(clientService.findClientByCpf(cpf), HttpStatus.OK);
+    public ResponseEntity<ClientResponse> getClientByCpf(@RequestBody ClientLogin clientLogin) {
+        return new ResponseEntity<>(clientService.findByEmail(clientLogin), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")   
-    public ResponseEntity<ClientResponse> requestClient(@PathVariable("id") Integer id, @RequestBody ClientRequest request) {
+    public ResponseEntity<String> requestClient(@PathVariable("id") Integer id, @RequestBody ClientRequest request) {
         return new ResponseEntity<>(clientService.updateClient(id, request), HttpStatus.ACCEPTED);
     }
 

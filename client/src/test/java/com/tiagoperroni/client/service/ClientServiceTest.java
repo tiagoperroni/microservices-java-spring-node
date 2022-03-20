@@ -3,9 +3,7 @@ package com.tiagoperroni.client.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
 import com.tiagoperroni.client.config.IFeignAdress;
-import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.model.AdressRequest;
-import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.model.ClientResponse;
 
 import org.junit.jupiter.api.BeforeEach;

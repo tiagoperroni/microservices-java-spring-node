@@ -2,11 +2,13 @@ package com.tiagoperroni.client.repository;
 
 import java.util.Optional;
 
+import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.model.ClientResponse;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ClientRepository extends JpaRepository<ClientResponse, Integer> {
+public interface ClientRepository extends JpaRepository<Client, Integer> {
 
-    Optional<ClientResponse> findByCpf(String cpf);    
+    Optional<Client> findByCpf(String cpf);    
+    Optional<Client> findByEmail(String email);    
 }
