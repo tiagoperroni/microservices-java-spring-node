@@ -6,10 +6,10 @@ import com.tiagoperroni.order.exceptions.ClientNotFoundException;
 import com.tiagoperroni.order.exceptions.InvalidPasswordException;
 import com.tiagoperroni.order.exceptions.InvalidTokenException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
-import com.tiagoperroni.order.model.ClientLogin;
-import com.tiagoperroni.order.model.ClientLoginToken;
-import com.tiagoperroni.order.model.ClientRequest;
-import com.tiagoperroni.order.model.OrderRequest;
+import com.tiagoperroni.order.models.ClientLogin;
+import com.tiagoperroni.order.models.ClientLoginToken;
+import com.tiagoperroni.order.models.ClientRequest;
+import com.tiagoperroni.order.models.OrderRequest;
 import com.tiagoperroni.order.repository.ClientLoginTokenRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;

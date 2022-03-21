@@ -4,10 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.tiagoperroni.order.model.ClientLogin;
-import com.tiagoperroni.order.model.Order;
-import com.tiagoperroni.order.model.OrderRequest;
-import com.tiagoperroni.order.model.OrderResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiagoperroni.order.models.ClientLogin;
+import com.tiagoperroni.order.models.Order;
+import com.tiagoperroni.order.models.OrderRequest;
+import com.tiagoperroni.order.models.OrderResponse;
 import com.tiagoperroni.order.service.ClientLoginService;
 import com.tiagoperroni.order.service.OrderListGet;
 import com.tiagoperroni.order.service.OrderService;

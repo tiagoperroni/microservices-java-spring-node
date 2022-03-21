@@ -1,7 +1,7 @@
 package com.tiagoperroni.order.mapper;
 
-import com.tiagoperroni.order.model.Order;
-import com.tiagoperroni.order.model.OrderResponse;
+import com.tiagoperroni.order.models.Order;
+import com.tiagoperroni.order.models.OrderResponse;
 
 public class OrderMapper {
 

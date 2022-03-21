@@ -3,8 +3,8 @@ package com.tiagoperroni.order.service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.ClientNotFoundException;
 import com.tiagoperroni.order.exceptions.InvalidTokenException;
@@ -12,12 +12,12 @@ import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
 import com.tiagoperroni.order.mapper.OrderMapper;
-import com.tiagoperroni.order.model.ClientRequest;
-import com.tiagoperroni.order.model.OrderItems;
-import com.tiagoperroni.order.model.OrderRequest;
-import com.tiagoperroni.order.model.OrderResponse;
-import com.tiagoperroni.order.model.Product;
-import com.tiagoperroni.order.model.ProductList;
+import com.tiagoperroni.order.models.ClientRequest;
+import com.tiagoperroni.order.models.OrderItems;
+import com.tiagoperroni.order.models.OrderRequest;
+import com.tiagoperroni.order.models.OrderResponse;
+import com.tiagoperroni.order.models.Product;
+import com.tiagoperroni.order.models.ProductList;
 import com.tiagoperroni.order.repository.OrderRepository;
 
 import org.slf4j.Logger;
@@ -40,6 +40,9 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private OrderMessageService orderMessageService;
+
     private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     /**
@@ -47,6 +50,7 @@ public class OrderService {
      * 
      * @param orderRequest
      * @return
+     * @throws JsonProcessingException
      */
 
     public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
@@ -61,10 +65,10 @@ public class OrderService {
             orderResponse.setOrderDate(LocalDateTime.now());            
             logger.info("Salvando novo pedido no DB: {}", orderResponse); 
             var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));            
-            orderResponse.setId(order.getId()); 
-            logger.info("Enviando detalhes do pedido: {}", orderResponse);           
-            return orderResponse;
-        
+            orderResponse.setId(order.getId());
+            this.orderMessageService.sendOrderMessage(orderResponse);
+            logger.info("Enviando detalhes do pedido: {}", orderResponse);         
+            return orderResponse;        
     }
 
     // /**

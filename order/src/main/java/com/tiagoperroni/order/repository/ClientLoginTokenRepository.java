@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.repository;
 
-import com.tiagoperroni.order.model.ClientLoginToken;
+import com.tiagoperroni.order.models.ClientLoginToken;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

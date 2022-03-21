@@ -1,4 +1,4 @@
-package com.tiagoperroni.order.model;
+package com.tiagoperroni.order.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

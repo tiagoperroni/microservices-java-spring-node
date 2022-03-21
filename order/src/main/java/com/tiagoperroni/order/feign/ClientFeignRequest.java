@@ -1,7 +1,7 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.model.ClientLogin;
-import com.tiagoperroni.order.model.ClientRequest;
+import com.tiagoperroni.order.models.ClientLogin;
+import com.tiagoperroni.order.models.ClientRequest;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

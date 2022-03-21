@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.model.Product;
+import com.tiagoperroni.order.models.Product;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
