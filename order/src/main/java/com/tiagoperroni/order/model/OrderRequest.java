@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderRequest {
 
-    private List<ProductList> productList = new ArrayList<>();
-    private Integer clientId;
+    private List<ProductList> productList = new ArrayList<>();   
     private String clientEmail;
     
 }

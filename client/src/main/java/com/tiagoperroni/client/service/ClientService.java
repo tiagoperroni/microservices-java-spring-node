@@ -54,7 +54,7 @@ public class ClientService {
         var adressResponse = this.getAdress(request.getCep(), request.getNumber(), request.getComplement());
         logger.info("Service: Prepare client response with Client Mapper");
         var client = ClientMapper.convertFromClientRequest(request, adressResponse);
-        client.setClientPort(this.environment.getProperty("server.port"));
+        client.setClientPort(this.environment.getProperty("local.server.port"));
         logger.info("Service: Sending client response with response: {}", client);
         var clientResponse = ClientMapper.convertFromClient(this.clientRepository.save(client));
         clientResponse.setPassword("******");

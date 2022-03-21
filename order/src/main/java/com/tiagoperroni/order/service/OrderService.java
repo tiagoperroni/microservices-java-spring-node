@@ -11,18 +11,19 @@ import com.tiagoperroni.order.exceptions.InvalidTokenException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
+import com.tiagoperroni.order.mapper.OrderMapper;
 import com.tiagoperroni.order.model.ClientRequest;
 import com.tiagoperroni.order.model.OrderItems;
 import com.tiagoperroni.order.model.OrderRequest;
 import com.tiagoperroni.order.model.OrderResponse;
 import com.tiagoperroni.order.model.Product;
 import com.tiagoperroni.order.model.ProductList;
+import com.tiagoperroni.order.repository.OrderRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class OrderService {
@@ -36,6 +37,9 @@ public class OrderService {
     @Autowired
     private ClientLoginService clientLoginService;
 
+    @Autowired
+    private OrderRepository orderRepository;
+
     private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     /**
@@ -48,15 +52,17 @@ public class OrderService {
     public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
         logger.info("Recebendo novo pedido: {}", orderRequest);   
             this.verifyToken(orderRequest, token);    
-            var orderResponse = new OrderResponse();
-            orderResponse.setId(UUID.randomUUID().toString());
+            var orderResponse = new OrderResponse();      
             orderResponse.setClient(this.getClientRequest(orderRequest.getClientEmail()));
             var orderItems = this.prepareOrder(orderRequest);
             orderResponse.setItems(orderItems);
             orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
             orderResponse.setTotalPrice(this.formatDouble(orderItems));
-            orderResponse.setOrderDate(LocalDateTime.now());
-            logger.info("Enviando detalhes do pedido: {}", orderResponse);
+            orderResponse.setOrderDate(LocalDateTime.now());            
+            logger.info("Salvando novo pedido no DB: {}", orderResponse); 
+            var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));            
+            orderResponse.setId(order.getId()); 
+            logger.info("Enviando detalhes do pedido: {}", orderResponse);           
             return orderResponse;
         
     }

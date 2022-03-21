@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "amqplib": "^0.8.0",
     "appmetrics-zipkin": "^1.1.1",
     "dotenv": "^16.0.0",
     "eureka-js-client": "^4.5.0",
