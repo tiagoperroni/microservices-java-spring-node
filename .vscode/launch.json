@@ -71,6 +71,17 @@
       "projectName": "address",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-OrdermailApplication<ordermail>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.ordermail.OrdermailApplication",
+      "projectName": "ordermail",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
     }
   ]
 }

@@ -9,6 +9,7 @@ import com.tiagoperroni.order.exceptions.ClientNotActiveException;
 import com.tiagoperroni.order.exceptions.ClientNotFoundException;
 import com.tiagoperroni.order.exceptions.InvalidTokenException;
 import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
+import com.tiagoperroni.order.exceptions.ValidateDataException;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
 import com.tiagoperroni.order.mapper.OrderMapper;
@@ -210,6 +211,8 @@ public class OrderService {
     public void verifyToken(OrderRequest orderRequest, String token) {
         if (token.equals(null)) {
             throw new InvalidTokenException("The token must be informed.");
+        } else if (orderRequest.getClientEmail() == null) {
+            throw new ValidateDataException("The e-mail of client must be informed.");
         } else {
             this.clientLoginService.verifyTokenIsValid(orderRequest, token);
         }

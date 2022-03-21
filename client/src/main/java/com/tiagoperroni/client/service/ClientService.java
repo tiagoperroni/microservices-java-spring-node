@@ -89,16 +89,17 @@ public class ClientService {
     }
 
     public void verifyClientCpfAndEmailAlreadyExists(String cpf, String email) {
-        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);
-        var clientEmail = this.clientRepository.findByCpf(cpf).orElse(null);
+        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);        
+        
         if (clientCpf != null) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
-        } else {
-            if (clientEmail != null) {
-                throw new DuplicatedClientException("Already exists a client with the e-mail informed.");
-            }
-        }
+        } 
 
+        var client = this.clientRepository.findByEmail(email).orElse(null);
+        
+        if (client != null) {
+            throw new DuplicatedClientException("Already exists a client with the e-mail informed.");
+        }
     }
 
     public ClientResponse findByEmail(ClientLogin clientLogin) {

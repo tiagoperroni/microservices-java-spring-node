@@ -49,4 +49,13 @@ public class ExceptionHandlerMain {
         error.setErrorTime(LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ValidateDataException.class)
+    public ResponseEntity<MessageError> missDataException(ValidateDataException exception) {
+        var error = new MessageError();
+        error.setStatusCode(HttpStatus.BAD_GATEWAY.value());
+        error.setMessage(exception.getMessage());
+        error.setErrorTime(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.BAD_GATEWAY);
+    }
 }
