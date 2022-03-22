@@ -33,22 +33,25 @@ public class KafkaOrderListener {
     }
 
     public String textMessage(OrderMessage orderMessage) {
-        String concat = null;
+        String concat = "";
         for (OrderItems item : orderMessage.getOrderItems()) {
-             concat = "Produto: " + item.getProductName() + "\n"
-                    + "Quantidade: " + item.getQuantity();
+            concat += "  Produto: " + item.getProductName() + "\n"
+                    + "  Quantidade: " + item.getQuantity() + "\n"
+                    + "  Preço Unitário: " + item.getProductPrice() + "\n"
+                    + "\n";
+                    
         }
         return 
         "Olá " + orderMessage.getClientName() + ", obrigado por sua compra! " + "Segue os detalhes do seu pedido abaixo!" + "\n"
         + "\n"       
         + "Id: " + orderMessage.getId() + "\n"
-        + "Nome: " + orderMessage.getClientName() + "\n"
-        + "Email: " + orderMessage.getClientEmail() + "\n"
-        + "CPF: " + orderMessage.getClientCpf() + "\n"
+        + "  Nome: " + orderMessage.getClientName() + "\n"
+        + "  Email: " + orderMessage.getClientEmail() + "\n"
+        + "  CPF: " + orderMessage.getClientCpf() + "\n"
         + "\n"
         + "===============================" + "\n"
-        + "Produtos: " + "\n"
-        + concat + "\n"
+        + "Seus Produtos: " + "\n"
+        + concat
         + "===============================" + "\n"
         + "\n"
         + "Quantidade Total: " + orderMessage.getTotalQuantity() + "\n"
