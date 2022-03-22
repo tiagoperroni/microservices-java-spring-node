@@ -3,15 +3,21 @@ package com.tiagoperroni.ordermail.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tiagoperroni.ordermail.email.EmailService;
+import com.tiagoperroni.ordermail.model.OrderItems;
 import com.tiagoperroni.ordermail.model.OrderMessage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 public class KafkaOrderListener {
+
+    @Autowired
+    private EmailService emailService;
     
     private Logger logger = LoggerFactory.getLogger(KafkaOrderListener.class);
 
@@ -22,6 +28,29 @@ public class KafkaOrderListener {
         ObjectMapper mapper = new ObjectMapper();
         var orderReceived = mapper.readValue(message, OrderMessage.class);
 
-        System.out.println(orderReceived);
+        this.emailService.sendMail(orderReceived.getClientEmail(), "Seu pedido foi recebido!", this.textMessage(orderReceived));
+        
+    }
+
+    public String textMessage(OrderMessage orderMessage) {
+        String concat = null;
+        for (OrderItems item : orderMessage.getOrderItems()) {
+             concat = "Produto: " + item.getProductName() + "\n"
+                    + "Quantidade: " + item.getQuantity();
+        }
+        return "Olá " + orderMessage.getClientName() + "\n"
+        + "===============================" + "\n"
+        + "Segue os detalhes do seu pedido abaixo!" + "\n"
+        + "Id do Pedido: " + orderMessage.getId() + "\n"
+        + "Nome: " + orderMessage.getClientName() + "\n"
+        + "Email: " + orderMessage.getClientEmail() + "\n"
+        + "CPF: " + orderMessage.getClientCpf() + "\n"
+        + "===============================" + "\n"
+        + "Produtos: " + "\n"
+        + concat + "\n"
+        + "===============================" + "\n"
+        + "Quantidade Total: " + orderMessage.getTotalQuantity() + "\n"
+        + "Valor Total: " + orderMessage.getTotalOrder() + "\n"
+        + "Data do Pedido: " + orderMessage.getOrderDate() + "\n";
     }
 }
