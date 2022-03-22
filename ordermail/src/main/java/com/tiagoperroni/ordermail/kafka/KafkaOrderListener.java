@@ -38,9 +38,9 @@ public class KafkaOrderListener {
              concat = "Produto: " + item.getProductName() + "\n"
                     + "Quantidade: " + item.getQuantity();
         }
-        return "Olá " + orderMessage.getClientName() + ", obrigado por sua compra!" + "\n"
-        + "\n"
-        + "Segue os detalhes do seu pedido abaixo!" + "\n"
+        return 
+        "Olá " + orderMessage.getClientName() + ", obrigado por sua compra! " + "Segue os detalhes do seu pedido abaixo!" + "\n"
+        + "\n"       
         + "Id: " + orderMessage.getId() + "\n"
         + "Nome: " + orderMessage.getClientName() + "\n"
         + "Email: " + orderMessage.getClientEmail() + "\n"

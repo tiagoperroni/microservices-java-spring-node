@@ -55,5 +55,4 @@ public class MainExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
-
 }
