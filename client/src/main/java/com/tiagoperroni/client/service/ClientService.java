@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.config.ClientServiceConfig;
 import com.tiagoperroni.client.config.IFeignAdress;
 import com.tiagoperroni.client.exceptions.ClientNotFoundException;
+import com.tiagoperroni.client.exceptions.DataNotFoundException;
 import com.tiagoperroni.client.exceptions.DuplicatedClientException;
 import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
@@ -61,12 +62,23 @@ public class ClientService {
         return clientResponse;
     }
 
+    /**
+     * método para atualizar cliente
+     * @param email
+     * @param request
+     * @return
+     */
+
     public String updateClient(String email, ClientRequest request) {
-        var client = this.verifyIfClientWasFound(email);
-        if (client.getCpf().equals(request.getCpf())) {
-            BeanUtils.copyProperties(request, client);
-            this.clientRepository.save(ClientMapper.convertFromClientResponse(client));
-            return "Client was update with success. " + client;
+        if (email == null || request.getCpf() == null) {
+            throw new DataNotFoundException("Do you need informe the CPF and E-mail.");
+        }
+        var findClient = ClientMapper.convertFromClientResponse(this.verifyIfClientWasFound(email));
+        if (findClient.getCpf().equals(request.getCpf())) {
+            BeanUtils.copyProperties(request, findClient, "id", "isActive", "password", "clientPort");
+            var client = this.clientRepository.save(findClient);  
+            client.setPassword("******");   
+            return "Client was update with success. " + ClientMapper.convertFromClient(client);
         }
         throw new DuplicatedClientException("Already exists a client with the CPF informed.");
     }
@@ -80,12 +92,17 @@ public class ClientService {
         return adressResponse;
     }
 
+    /**
+     * Verifica se existe client através do email
+     * @param email
+     * @return
+     */
     public ClientResponse verifyIfClientWasFound(String email) {
-        var client = this.getClient(email);
+        var client = this.clientRepository.findByEmail(email).orElse(null);
         if (client == null) {
             throw new ClientNotFoundException(String.format("Not found a client with id %s ", email));
         }
-        return client;
+        return ClientMapper.convertFromClient(client);
     }
 
     public void verifyClientCpfAndEmailAlreadyExists(String cpf, String email) {

@@ -13,7 +13,7 @@ public class ClientMapper {
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public static Client convertFromClientRequest(ClientRequest request, AdressResponse adressResponse) {
-        var clientResponse = new Client();
+        var clientResponse = new Client();      
         clientResponse.setName(request.getName());
         clientResponse.setCpf(request.getCpf());
         clientResponse.setEmail(request.getEmail());
@@ -39,6 +39,7 @@ public class ClientMapper {
         clientResponse.setEmail(request.getEmail());      
         clientResponse.setPassword(request.getPassword());
         clientResponse.setIsActive(true);
+        clientResponse.setClientPort(request.getClientPort());
         clientResponse.setAdress(request.getAdress());       
         return clientResponse;
         
@@ -46,11 +47,13 @@ public class ClientMapper {
 
     public static Client convertFromClientResponse(ClientResponse request) {
         var client = new Client();
+        client.setId(request.getId());
         client.setName(request.getName());
         client.setCpf(request.getCpf());
         client.setEmail(request.getEmail());      
         client.setPassword(request.getPassword());
         client.setIsActive(true);
+        client.setClientPort(request.getClientPort());
         client.setAdress(request.getAdress());       
         return client;
         
