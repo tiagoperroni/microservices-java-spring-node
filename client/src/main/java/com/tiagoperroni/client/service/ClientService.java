@@ -10,6 +10,8 @@ import com.tiagoperroni.client.config.IFeignAdress;
 import com.tiagoperroni.client.exceptions.ClientNotFoundException;
 import com.tiagoperroni.client.exceptions.DataNotFoundException;
 import com.tiagoperroni.client.exceptions.DuplicatedClientException;
+import com.tiagoperroni.client.exceptions.InvalidTokenException;
+import com.tiagoperroni.client.feign.TokenFeignRequest;
 import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
@@ -31,6 +33,9 @@ public class ClientService {
 
     @Autowired
     private IFeignAdress feignAdress;
+
+    @Autowired
+    private TokenFeignRequest tokenFeignRequest;
 
     @Autowired
     private ClientRepository clientRepository;
@@ -64,20 +69,22 @@ public class ClientService {
 
     /**
      * método para atualizar cliente
+     * 
      * @param email
      * @param request
      * @return
      */
 
-    public String updateClient(String email, ClientRequest request) {
+    public String updateClient(String email, ClientRequest request, String token) {
+        this.verifyToken(email, token);
         if (email == null || request.getCpf() == null) {
             throw new DataNotFoundException("Do you need informe the CPF and E-mail.");
         }
         var findClient = ClientMapper.convertFromClientResponse(this.verifyIfClientWasFound(email));
         if (findClient.getCpf().equals(request.getCpf())) {
             BeanUtils.copyProperties(request, findClient, "id", "isActive", "password", "clientPort");
-            var client = this.clientRepository.save(findClient);  
-            client.setPassword("******");   
+            var client = this.clientRepository.save(findClient);
+            client.setPassword("******");
             return "Client was update with success. " + ClientMapper.convertFromClient(client);
         }
         throw new DuplicatedClientException("Already exists a client with the CPF informed.");
@@ -85,19 +92,21 @@ public class ClientService {
 
     /**
      * método para deletar client
+     * 
      * @param cep
      * @param number
      * @param complement
      * @return
      */
 
-     public Map<String, String> deleteClient(String email, String token) {
+    public Map<String, String> deleteClient(String email, String token) {
+        this.verifyToken(email, token);
         var findClient = ClientMapper.convertFromClientResponse(this.verifyIfClientWasFound(email));
         this.clientRepository.deleteById(findClient.getId());
         var response = new HashMap<String, String>();
         response.put("Message", "User was deleted with success.");
         return response;
-     }
+    }
 
     public AdressResponse getAdress(String cep, String number, String complement) {
         logger.info("Service: Prepare Adress Response with cep: {}, number: {}, complement: {} ", cep, number,
@@ -110,6 +119,7 @@ public class ClientService {
 
     /**
      * Verifica se existe client através do email
+     * 
      * @param email
      * @return
      */
@@ -122,14 +132,14 @@ public class ClientService {
     }
 
     public void verifyClientCpfAndEmailAlreadyExists(String cpf, String email) {
-        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);        
-        
+        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);
+
         if (clientCpf != null) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
-        } 
+        }
 
         var client = this.clientRepository.findByEmail(email).orElse(null);
-        
+
         if (client != null) {
             throw new DuplicatedClientException("Already exists a client with the e-mail informed.");
         }
@@ -141,6 +151,13 @@ public class ClientService {
                         String.format("Not found client with the e-mail %s.", clientLogin.getEmail())));
         return ClientMapper.convertFromClient(client);
 
+    }
+
+    public void verifyToken(String email, String token) {
+        String tokenRequest = this.tokenFeignRequest.getToken(email).getBody();
+        if (!tokenRequest.equals(token)) {
+            throw new InvalidTokenException("The token informed is invalid.");
+        }
     }
 
     public Map<String, Object> getPropertiesDetails() throws JsonProcessingException {

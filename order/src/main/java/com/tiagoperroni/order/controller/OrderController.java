@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.order.models.ClientLogin;
 import com.tiagoperroni.order.models.Order;
 import com.tiagoperroni.order.models.OrderRequest;
@@ -53,9 +52,17 @@ public class OrderController {
 
     @ApiOperation(value = "Faça o login aqui para gerar o Token - Necessário Cadastro")
     @PostMapping("/login")
+    @Retry(name = "retryForClientLogin", fallbackMethod = "retryForClientRequestFallBack")
     public ResponseEntity<String> clientLogin(@RequestBody ClientLogin clientLogin) {
         // logger.info("New client login was received with cpf: {}", cpf);
         return new ResponseEntity<>(this.clientLoginService.clientLoginService(clientLogin), HttpStatus.ACCEPTED);
+    }
+
+    private ResponseEntity<Map<String, String>> retryForClientRequestFallBack(Throwable ex) {
+        var error = new HashMap<String, String>();
+        error.put("message", "authentication microservice is down.");
+        return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
+
     }
 
     @ApiOperation(value = "Faça seu pedido aqui - Necessário login e para gerar Token")

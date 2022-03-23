@@ -3,7 +3,6 @@ package com.tiagoperroni.client.controller;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
@@ -51,18 +50,21 @@ public class ClientController {
     }
 
     @PostMapping("/login")
-    //@Retry(name = "requestAdressClient", fallbackMethod = "requestAdressClientFallback")
+    // @Retry(name = "requestAdressClient", fallbackMethod =
+    // "requestAdressClientFallback")
     public ResponseEntity<ClientResponse> getClientByCpf(@RequestBody ClientLogin clientLogin) {
         return new ResponseEntity<>(clientService.findByEmail(clientLogin), HttpStatus.OK);
     }
 
-    @PutMapping("/{email}")   
-    public ResponseEntity<String> updateClient(@PathVariable("email") String email, @RequestBody ClientRequest request) {
-        return new ResponseEntity<>(clientService.updateClient(email, request), HttpStatus.ACCEPTED);
+    @PutMapping("/{email}")
+    public ResponseEntity<String> updateClient(@PathVariable("email") String email, @RequestBody ClientRequest request,
+            @RequestParam String token) {
+        return new ResponseEntity<>(clientService.updateClient(email, request, token), HttpStatus.ACCEPTED);
     }
 
-    @DeleteMapping("/{email}")   
-    public ResponseEntity<Map<String, String>> deleteClient(@PathVariable("email") String email, @RequestParam String token) {      
+    @DeleteMapping("/{email}")
+    public ResponseEntity<Map<String, String>> deleteClient(@PathVariable("email") String email,
+            @RequestParam String token) {
         return new ResponseEntity<>(this.clientService.deleteClient(email, token), HttpStatus.ACCEPTED);
     }
 
@@ -73,8 +75,8 @@ public class ClientController {
             error.put("StatusCode", "400");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         } else {
-            error.put("Error", ex.getMessage());          
-            error.put("StatusCode", "503");          
+            error.put("Error", ex.getMessage());
+            error.put("StatusCode", "503");
             return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
     }

@@ -55,4 +55,13 @@ public class MainExceptionHandler {
         error.setTimestamp(LocalDateTime.now());
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<MessageError> invalidToken(InvalidTokenException exception) {
+        var error = new MessageError();
+        error.setStatusCode(HttpStatus.UNAUTHORIZED.value());
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(LocalDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
 }

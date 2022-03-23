@@ -1,21 +1,16 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.models.ClientLogin;
 import com.tiagoperroni.order.models.ClientRequest;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "client")
 public interface ClientFeignRequest {
     
     @GetMapping("/clients/{email}")
     public ResponseEntity<ClientRequest> getClient(@PathVariable("email") String email);
-
-    @PostMapping("/clients/login")
-    public ResponseEntity<ClientRequest> clientLogin(@RequestBody ClientLogin clientLogin);
+    
 }
