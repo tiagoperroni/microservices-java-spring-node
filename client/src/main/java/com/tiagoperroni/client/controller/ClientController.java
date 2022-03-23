@@ -3,6 +3,7 @@ package com.tiagoperroni.client.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
@@ -15,12 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.github.resilience4j.retry.annotation.Retry;
@@ -54,8 +57,13 @@ public class ClientController {
     }
 
     @PutMapping("/{email}")   
-    public ResponseEntity<String> requestClient(@PathVariable("email") String email, @RequestBody ClientRequest request) {
+    public ResponseEntity<String> updateClient(@PathVariable("email") String email, @RequestBody ClientRequest request) {
         return new ResponseEntity<>(clientService.updateClient(email, request), HttpStatus.ACCEPTED);
+    }
+
+    @DeleteMapping("/{email}")   
+    public ResponseEntity<Map<String, String>> deleteClient(@PathVariable("email") String email, @RequestParam String token) {      
+        return new ResponseEntity<>(this.clientService.deleteClient(email, token), HttpStatus.ACCEPTED);
     }
 
     public ResponseEntity<Map<String, String>> requestAdressClientFallback(Throwable ex) {

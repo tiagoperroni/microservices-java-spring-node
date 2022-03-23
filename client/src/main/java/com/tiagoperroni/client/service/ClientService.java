@@ -83,6 +83,22 @@ public class ClientService {
         throw new DuplicatedClientException("Already exists a client with the CPF informed.");
     }
 
+    /**
+     * método para deletar client
+     * @param cep
+     * @param number
+     * @param complement
+     * @return
+     */
+
+     public Map<String, String> deleteClient(String email, String token) {
+        var findClient = ClientMapper.convertFromClientResponse(this.verifyIfClientWasFound(email));
+        this.clientRepository.deleteById(findClient.getId());
+        var response = new HashMap<String, String>();
+        response.put("Message", "User was deleted with success.");
+        return response;
+     }
+
     public AdressResponse getAdress(String cep, String number, String complement) {
         logger.info("Service: Prepare Adress Response with cep: {}, number: {}, complement: {} ", cep, number,
                 complement);
