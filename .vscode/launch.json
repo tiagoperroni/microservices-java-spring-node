@@ -2,6 +2,12 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch AuthenticationApplication",
+      "request": "launch",
+      "mainClass": "com.tiagoperroni.authentication.AuthenticationApplication"
+    },
+    {
+      "type": "java",
       "name": "Launch ClientApplication2",
       "request": "launch",
       "mainClass": "com.tiagoperroni.client.ClientApplication2"
@@ -91,6 +97,17 @@
       "console": "internalConsole",
       "mainClass": "com.tiagoperroni.ordermail.OrderMailApplication",
       "projectName": "ordermail",
+      "args": "",
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot-AuthenticationApplication<authentication>",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "mainClass": "com.tiagoperroni.authentication.AuthenticationApplication",
+      "projectName": "authentication",
       "args": "",
       "envFile": "${workspaceFolder}/.env"
     }

@@ -16,6 +16,7 @@ import com.tiagoperroni.client.mapper.AdressMapper;
 import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
+import com.tiagoperroni.client.model.Client;
 import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
@@ -62,7 +63,8 @@ public class ClientService {
         var client = ClientMapper.convertFromClientRequest(request, adressResponse);
         client.setClientPort(this.environment.getProperty("local.server.port"));
         logger.info("Service: Sending client response with response: {}", client);
-        var clientResponse = ClientMapper.convertFromClient(this.clientRepository.save(client));
+        var clientRepoResponse = this.clientRepository.save(client);
+        var clientResponse = ClientMapper.convertFromClient(clientRepoResponse);
         clientResponse.setPassword("******");
         return clientResponse;
     }
@@ -77,7 +79,7 @@ public class ClientService {
 
     public String updateClient(String email, ClientRequest request, String token) {
         this.verifyToken(email, token);
-        if (email == null || request.getCpf() == null) {
+        if (email == null || email.isEmpty() || request.getCpf() == null || request.getCpf().isEmpty()) {
             throw new DataNotFoundException("Do you need informe the CPF and E-mail.");
         }
         var findClient = ClientMapper.convertFromClientResponse(this.verifyIfClientWasFound(email));
@@ -93,9 +95,9 @@ public class ClientService {
     /**
      * método para deletar client
      * 
-     * @param cep
-     * @param number
-     * @param complement
+     * @param //cep
+     * @param //number
+     * @param //complement
      * @return
      */
 
@@ -126,31 +128,27 @@ public class ClientService {
     public ClientResponse verifyIfClientWasFound(String email) {
         var client = this.clientRepository.findByEmail(email).orElse(null);
         if (client == null) {
-            throw new ClientNotFoundException(String.format("Not found a client with id %s ", email));
+            throw new ClientNotFoundException(String.format("Not found a client with email %s", email));
         }
         return ClientMapper.convertFromClient(client);
     }
 
     public void verifyClientCpfAndEmailAlreadyExists(String cpf, String email) {
-        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(null);
+        var newClient = new Client();
+        newClient.setCpf("");
+        newClient.setEmail("");
+        var clientCpf = this.clientRepository.findByCpf(cpf).orElse(newClient);
 
-        if (clientCpf != null) {
+        if (!clientCpf.getCpf().isEmpty()) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
         }
+        
+        var clientEmail = this.clientRepository.findByEmail(email).orElse(newClient);
+        
 
-        var client = this.clientRepository.findByEmail(email).orElse(null);
-
-        if (client != null) {
+        if (!clientEmail.getEmail().isEmpty()) {
             throw new DuplicatedClientException("Already exists a client with the e-mail informed.");
         }
-    }
-
-    public ClientResponse findByEmail(ClientLogin clientLogin) {
-        var client = this.clientRepository.findByEmail(clientLogin.getEmail())
-                .orElseThrow(() -> new ClientNotFoundException(
-                        String.format("Not found client with the e-mail %s.", clientLogin.getEmail())));
-        return ClientMapper.convertFromClient(client);
-
     }
 
     public void verifyToken(String email, String token) {

@@ -1,82 +1,287 @@
-// package com.tiagoperroni.client.service;
+    package com.tiagoperroni.client.service;
 
-// import com.fasterxml.jackson.core.JsonProcessingException;
-// import com.tiagoperroni.client.config.ClientServiceConfig;
-// import com.tiagoperroni.client.config.IFeignAdress;
-// import com.tiagoperroni.client.model.AdressRequest;
-// import com.tiagoperroni.client.model.ClientResponse;
+    import com.fasterxml.jackson.core.JsonProcessingException;
+    import com.tiagoperroni.client.config.ClientServiceConfig;
+    import com.tiagoperroni.client.config.IFeignAdress;
+    import com.tiagoperroni.client.exceptions.ClientNotFoundException;
+    import com.tiagoperroni.client.exceptions.DataNotFoundException;
+    import com.tiagoperroni.client.exceptions.DuplicatedClientException;
+    import com.tiagoperroni.client.exceptions.InvalidTokenException;
+    import com.tiagoperroni.client.feign.TokenFeignRequest;
+    import com.tiagoperroni.client.mapper.ClientMapper;
+    import com.tiagoperroni.client.model.AdressRequest;
+    import com.tiagoperroni.client.model.Client;
+    import com.tiagoperroni.client.model.ClientRequest;
+    import com.tiagoperroni.client.model.ClientResponse;
+    import com.tiagoperroni.client.repository.ClientRepository;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import static org.mockito.Mockito.*;
-// import org.mockito.MockitoAnnotations;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
+    import org.junit.jupiter.api.BeforeEach;
+    import org.junit.jupiter.api.Test;
+    import org.mockito.InjectMocks;
+    import org.mockito.Mock;
+    import static org.mockito.Mockito.*;
 
-// import java.util.Map;
+    import org.mockito.Mockito;
+    import org.mockito.MockitoAnnotations;
+    import org.springframework.core.env.Environment;
+    import org.springframework.http.HttpStatus;
+    import org.springframework.http.ResponseEntity;
 
-// import static org.junit.jupiter.api.Assertions.*;
+    import java.util.HashMap;
+    import java.util.Map;
+    import java.util.Optional;
 
-// public class ClientServiceTest {
+    import static org.junit.jupiter.api.Assertions.*;
 
-//     @InjectMocks
-//     private ClientService clientService;
+    public class ClientServiceTest {
 
-//     @Mock
-//     private ClientServiceConfig clientServiceConfig;
+        @InjectMocks
+        private ClientService clientService;
 
-//     @Mock
-//     private IFeignAdress feignAdress;
+        @Mock
+        private ClientServiceConfig clientServiceConfig;
 
-//     @BeforeEach
-//     public void setUp() {
-//         MockitoAnnotations.initMocks(this);
-//     }
+        @Mock
+        private ClientRepository clientRepository;
 
-//     @Test
-//     public void getUserWithId_Sucess() {
+        @Mock
+        private IFeignAdress feignAdress;
 
-//         var adressRequest = new AdressRequest();
-//         adressRequest.setLocalidade("Paranavaí");
-//         when(this.feignAdress.getAdress("87710140")).thenReturn(new ResponseEntity<AdressRequest>(adressRequest, HttpStatus.OK));
-        
-//         var clientResponse = new ClientResponse();
-//         clientResponse.setName("Tiago Perroni");
-//         clientResponse.setId(1);
-//         when(this.clientService.getClient(1)).thenReturn(clientResponse);
+        @Mock
+        private TokenFeignRequest tokenFeignRequest;
 
-//         ClientResponse client = this.clientService.getClient(1);
-//         assertEquals("Tiago Perroni", client.getName());
-//         assertEquals("Paranavaí", client.getAdress().getCidade());
+        @Mock
+        private Environment environment;
 
-//     }
+        @BeforeEach
+        public void setUp() {
+            MockitoAnnotations.initMocks(this);
+        }
 
-//     // @Test()
-//     // public void getUserWithId_Fail() {
-//     //     Exception exception = assertThrows(ClientNotFoundException.class, () ->
-//     //             clientService.getClient(12));
-//     //     assertEquals("Cliente de id 12 não encontrado.", exception.getMessage());
-//     //     assertEquals(exception.getClass(), ClientNotFoundException.class);
-//     // }
+        @Test
+        public void testGetUserWithEmail_Sucess() {
 
-//     // @Test
-//     // public void getClientsList_Sucess() {
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
 
-//     //     List<Client> getClients = this.clientService.getClients();
+            ClientResponse response = this.clientService.getClient("tiagoperroni@gmail.com");
 
-//     //     assertNotNull(getClients);
-//     //     assertTrue("Tiago Perroni" == getClients.get(0).getName());
-//     // }
+            assertEquals("Tiago Perroni", response.getName());
 
-//     @Test
-//     public void getPropertiesDetails() throws JsonProcessingException {
+        }
 
-//         // ação
-//         Map<String, Object> properties = this.clientService.getPropertiesDetails();
+        @Test
+        public void testGetUserWithEmail_ReturnNull() {
 
-//         // resultado
-//         assertNotNull(properties);
-//     }
-// }
+            Optional<Client> client = Optional.of(new Client());
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(client);
+
+            ClientResponse response = this.clientService.getClient("tiagoperroni@gmail.com");
+
+            assertNull(response.getName());
+        }
+
+        @Test
+        public void testSaveNewClient_Success() {
+
+            Optional<Client> client = Optional.of(new Client());
+            client.get().setCpf("");
+            when(this.clientRepository.findByCpf(anyString())).thenReturn(client);
+
+            Optional<Client> client2 = Optional.of(new Client());
+            client2.get().setEmail("");
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(client2);
+
+            when(this.feignAdress.getAdress(anyString()))
+                    .thenReturn(new ResponseEntity<AdressRequest>(this.getAdressRequest(), HttpStatus.OK));
+
+            when(this.environment.getProperty("local.server.port")).thenReturn("8081");
+
+            when(this.clientRepository.save(any())).thenReturn(this.returnClient());
+
+            ClientResponse response = this.clientService.saveClient(this.getClientRequest());
+
+            assertEquals("Tiago Perroni", response.getName());
+            assertEquals("******", response.getPassword());
+        }
+
+        @Test
+        public void testUpdateClient_Success() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+
+            when(this.clientRepository.save(any())).thenReturn(this.returnClient());
+
+            String response = this.clientService.updateClient("tiagoperroni@gmail.com", this.getClientRequest(), "123456789");
+
+            assertTrue(response.startsWith("Client was update with success"));
+        }
+
+        @Test
+        public void testUpdateClientWithNullEmail_ShouldFail() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+            try {
+                var clientRequest = new ClientRequest();
+                clientRequest.setEmail("");
+                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+            }catch (Exception ex) {
+                assertEquals(DataNotFoundException.class, ex.getClass());
+                assertEquals("Do you need informe the CPF and E-mail.", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testUpdateClientWithDuplicatedEmail_ShouldFail() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+            try {
+                var clientRequest = new ClientRequest();
+                clientRequest.setEmail("tiagoperroni@gmail.com");
+                clientRequest.setCpf("12365498");
+                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+            }catch (Exception ex) {
+                assertEquals(DuplicatedClientException.class, ex.getClass());
+                assertEquals("Already exists a client with the CPF informed.", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testUpdateClientWithNullClient_ShouldFail() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+
+            //when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+            try {
+                var clientRequest = new ClientRequest();
+                clientRequest.setEmail("tiagoperroni@gmail.com");
+                clientRequest.setCpf("12365498");
+                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+            }catch (Exception ex) {
+                assertEquals(ClientNotFoundException.class, ex.getClass());
+                assertEquals("Not found a client with email tiagoperroni@gmail.com", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testverifyClientCpfAndEmailAlreadyExists_ShouldFail() {
+
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+            try {
+                var clientRequest = new ClientRequest();
+                clientRequest.setEmail("tiagoperroni@gmail.com");
+                clientRequest.setCpf("12365498");
+                this.clientService.verifyClientCpfAndEmailAlreadyExists("123456789", "tiagoperroni@gmail.com");
+            }catch (Exception ex) {
+                assertEquals(DuplicatedClientException.class, ex.getClass());
+                assertEquals("Already exists a client with the e-mail informed.", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testverifyClientCpfAndCPFlAlreadyExists_ShouldFail() {
+
+            Optional<Client> client = Optional.of(new Client());
+            client.get().setEmail("");
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(client);
+            when(this.clientRepository.findByCpf(anyString())).thenReturn(this.returnClientOptional());
+            try {
+                var clientRequest = new ClientRequest();
+                clientRequest.setEmail("tiagoperroni@gmail.com");
+                clientRequest.setCpf("12365498");
+                this.clientService.verifyClientCpfAndEmailAlreadyExists("123456789", "tiagoperroni@gmail.com");
+            }catch (Exception ex) {
+                assertEquals(DuplicatedClientException.class, ex.getClass());
+                assertEquals("Already exists a client with the CPF informed.", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testverifyToken_ShouldFail() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+            try {
+                this.clientService.verifyToken("tiagoperroni@gmail.com", "123456767");
+            }catch (Exception ex) {
+                assertEquals(InvalidTokenException.class, ex.getClass());
+                assertEquals("The token informed is invalid.", ex.getMessage());
+            }
+        }
+
+        @Test
+        public void testDeleteClient_Success() {
+
+            when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
+
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+
+            Map<String, String> response = this.clientService.deleteClient("tiagoperroni@gmail.com", "123456789");
+
+            var message = new HashMap<String, String>();
+            message.put("Message", "User was deleted with success.");
+            assertEquals(message, response);
+        }
+
+        @Test
+        public void testgetPropertiesDetails() throws JsonProcessingException {
+
+            var response =  this.clientService.getPropertiesDetails();
+            assertNotNull(response);
+            assertTrue(response.toString().startsWith("{buildVersion"));
+        }
+
+        /**
+         * método para instanciar um cliente
+         *
+         * @return
+         */
+        public Client returnClient() {
+           Client client = new Client();
+            client.setId(1);
+            client.setName("Tiago Perroni");
+            client.setEmail("tiagoperroni@gmail.com");
+            client.setCpf("052.586.987-56");
+            client.setPassword("1234");
+            client.setIsActive(true);
+            client.setClientPort("8081");
+            return client;
+        }
+        public Optional<Client> returnClientOptional() {
+            Optional<Client> client = Optional.of(new Client());
+            client.get().setId(1);
+            client.get().setName("Tiago Perroni");
+            client.get().setEmail("tiagoperroni@gmail.com");
+            client.get().setCpf("052.586.987-56");
+            client.get().setPassword("1234");
+            client.get().setIsActive(true);
+            client.get().setClientPort("8081");
+            return client;
+        }
+
+        public ClientRequest getClientRequest() {
+            ClientRequest clientRequest = new ClientRequest();
+            clientRequest.setName("Tiago Perroni");
+            clientRequest.setCpf("052.586.987-56");
+            clientRequest.setEmail("tiagoperroni@gmail.com");
+            clientRequest.setCep("87710130");
+            clientRequest.setComplement("Casa");
+            clientRequest.setNumber("290");
+            clientRequest.setPassword("1234");
+            clientRequest.setRepeatPassword("1234");
+            return clientRequest;
+        }
+
+        public AdressRequest getAdressRequest() {
+            AdressRequest adressRequest = new AdressRequest();
+            adressRequest.setLocalidade("Curitiba");
+            adressRequest.setUf("PR");
+            adressRequest.setCep("87710130");
+            adressRequest.setLogradouro("Rua a");
+            adressRequest.setBairro("Bairro a");
+            return adressRequest;
+        }
+
+    }

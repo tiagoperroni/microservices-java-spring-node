@@ -49,13 +49,6 @@ public class ClientController {
         return new ResponseEntity<>(clientService.saveClient(request), HttpStatus.CREATED);
     }
 
-    @PostMapping("/login")
-    // @Retry(name = "requestAdressClient", fallbackMethod =
-    // "requestAdressClientFallback")
-    public ResponseEntity<ClientResponse> getClientByCpf(@RequestBody ClientLogin clientLogin) {
-        return new ResponseEntity<>(clientService.findByEmail(clientLogin), HttpStatus.OK);
-    }
-
     @PutMapping("/{email}")
     public ResponseEntity<String> updateClient(@PathVariable("email") String email, @RequestBody ClientRequest request,
             @RequestParam String token) {
