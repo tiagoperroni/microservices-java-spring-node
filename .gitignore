@@ -1,2 +1,3 @@
-/product/.env
-/product/node_modules
+config
+product/.env
+product/node_modules
