@@ -1,2 +1,2 @@
-product/.env
-product/node_modules
+/product/.env
+/product/node_modules
