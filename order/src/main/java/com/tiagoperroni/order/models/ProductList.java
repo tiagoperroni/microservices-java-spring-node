@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductList {
     
-    private Integer id;
+    private String id;
     private Integer quantity;
 }

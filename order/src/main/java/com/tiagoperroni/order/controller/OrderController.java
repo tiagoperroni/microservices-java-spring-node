@@ -48,15 +48,7 @@ public class OrderController {
     public ResponseEntity<List<Order>> getOrderByEmail(@PathVariable String email) {
         // logger.info("New client login was received with cpf: {}", cpf);
         return new ResponseEntity<>(this.orderListGet.getOrderByEmail(email), HttpStatus.OK);
-    }
-
-    @ApiOperation(value = "Faça o login aqui para gerar o Token - Necessário Cadastro")
-    @PostMapping("/login")
-    @Retry(name = "retryForClientLogin", fallbackMethod = "retryForClientRequestFallBack")
-    public ResponseEntity<String> clientLogin(@RequestBody ClientLogin clientLogin) {
-        // logger.info("New client login was received with cpf: {}", cpf);
-        return new ResponseEntity<>(this.clientLoginService.clientLoginService(clientLogin), HttpStatus.ACCEPTED);
-    }
+    }   
 
     private ResponseEntity<Map<String, String>> retryForClientRequestFallBack(Throwable ex) {
         var error = new HashMap<String, String>();

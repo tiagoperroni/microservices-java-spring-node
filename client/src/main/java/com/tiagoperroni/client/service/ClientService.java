@@ -17,9 +17,9 @@ import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
 import com.tiagoperroni.client.model.Client;
-import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
+import com.tiagoperroni.client.model.ClientResponseLogin;
 import com.tiagoperroni.client.repository.ClientRepository;
 
 import org.slf4j.Logger;
@@ -53,6 +53,16 @@ public class ClientService {
         logger.info("Service: Received a client request with id: {}", email);
         var client = this.clientRepository.findByEmail(email).orElse(null);
         return ClientMapper.convertFromClient(client);
+    }
+
+    public ClientResponseLogin getClientLogin(String email) {
+        logger.info("Service: Received a client LOGIN request with id: {}", email);
+        var client = this.clientRepository.findByEmail(email).orElse(null);
+        var clientResponseLogin = new ClientResponseLogin();
+        clientResponseLogin.setEmail(client.getEmail());
+        clientResponseLogin.setCpf(client.getCpf());
+        clientResponseLogin.setPassword(client.getPassword());
+        return clientResponseLogin;
     }
 
     public ClientResponse saveClient(ClientRequest request) {
@@ -142,9 +152,8 @@ public class ClientService {
         if (!clientCpf.getCpf().isEmpty()) {
             throw new DuplicatedClientException("Already exists a client with the CPF informed.");
         }
-        
+
         var clientEmail = this.clientRepository.findByEmail(email).orElse(newClient);
-        
 
         if (!clientEmail.getEmail().isEmpty()) {
             throw new DuplicatedClientException("Already exists a client with the e-mail informed.");

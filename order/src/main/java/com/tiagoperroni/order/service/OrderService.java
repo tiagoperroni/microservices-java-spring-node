@@ -55,40 +55,22 @@ public class OrderService {
      */
 
     public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
-        logger.info("Recebendo novo pedido: {}", orderRequest);   
-            this.verifyToken(orderRequest, token);    
-            var orderResponse = new OrderResponse();      
-            orderResponse.setClient(this.getClientRequest(orderRequest.getClientEmail()));
-            var orderItems = this.prepareOrder(orderRequest);
-            orderResponse.setItems(orderItems);
-            orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
-            orderResponse.setTotalPrice(this.formatDouble(orderItems));
-            orderResponse.setOrderDate(LocalDateTime.now());            
-            logger.info("Salvando novo pedido no DB: {}", orderResponse); 
-            var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));            
-            orderResponse.setId(order.getId());
-            this.orderMessageService.sendOrderMessage(orderResponse);
-            logger.info("Enviando detalhes do pedido: {}", orderResponse);         
-            return orderResponse;        
+        logger.info("OrderService - Recebendo novo pedido: {}", orderRequest.getClientEmail());
+        this.verifyToken(orderRequest, token);
+        var orderResponse = new OrderResponse();
+        orderResponse.setClient(this.getClientRequest(orderRequest.getClientEmail()));
+        var orderItems = this.prepareOrder(orderRequest);
+        orderResponse.setItems(orderItems);
+        orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
+        orderResponse.setTotalPrice(this.formatDouble(orderItems));
+        orderResponse.setOrderDate(LocalDateTime.now());
+        logger.info("OrderService - Salvando novo pedido no DB");
+        var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));
+        orderResponse.setId(order.getId());
+        this.orderMessageService.sendOrderMessage(orderResponse);
+        logger.info("OrderService - Enviando detalhes do pedido");
+        return orderResponse;
     }
-
-    // /**
-    // * Requisição GET para api de Clientes por id pelo RestTemplate
-    // *
-    // * @param id
-    // * @param quantity
-    // * @return
-    // */
-
-    // public Product getProductRequest(int id, int quantity) {
-    // logger.info("Enviando requisição para API PRODUTOS");
-
-    // String urlProductApi = "http://localhost:3000/product/" + id + "/" +
-    // quantity;
-    // ResponseEntity<Product> request = this.restTemplate.getForEntity(urlProductApi, Product.class);
-    // logger.info("Recebendo dados da API PRODUTOS: {}", request.getBody());
-    // return request.getBody();
-    // }
 
     /**
      * Requisição GET para api de Clientes por id pelo Open Feign
@@ -100,11 +82,11 @@ public class OrderService {
         logger.info("Enviando requisição para API CLIENTES");
         ClientRequest client = clientFeignRequest.getClient(email).getBody();
         if (client != null) {
-        logger.info("Recebendo dados da API CLIENTES: {}", client);
-        this.checkClientIsValid(client);
-        return client;
-    }
-        
+            logger.info("Recebendo dados da API CLIENTES: {}", client);
+            this.checkClientIsValid(client);
+            return client;
+        }
+
         throw new ClientNotFoundException(String.format("Client with e-mail %s not was found.", email));
     }
 
@@ -116,9 +98,9 @@ public class OrderService {
      * @return
      */
 
-    public Product getProductRequest(int id, int quantity) {
+    public Product getProductRequest(String id, int quantity) {
         logger.info("Enviando requisição para API PRODUTOS");
-        Product responseProduct = this.productFeignRequest.getProductById(id, quantity).getBody();
+        Product responseProduct = this.productFeignRequest.getProductById(id).getBody();
         logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
         return responseProduct;
     }
@@ -136,7 +118,6 @@ public class OrderService {
             var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
             this.validaStock(productResponse, product);
             var orderItem = new OrderItems();
-            orderItem.setProductId(productResponse.getId());
             orderItem.setProductName(productResponse.getName());
             orderItem.setProductPrice(productResponse.getPrice());
             orderItem.setQuantity(product.getQuantity());
@@ -204,6 +185,7 @@ public class OrderService {
 
     /**
      * verificando se token foi informado
+     * 
      * @param orderRequest
      * @param token
      */
@@ -217,5 +199,4 @@ public class OrderService {
             this.clientLoginService.verifyTokenIsValid(orderRequest, token);
         }
     }
-   
 }

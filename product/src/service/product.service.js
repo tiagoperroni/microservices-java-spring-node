@@ -1,3 +1,4 @@
+const { v4 } = require('uuid');
 const { findAllProducts, saveProduct, findProductByName } = require("../repository/product.repository.js");
 
 class ProductService {
@@ -9,7 +10,9 @@ class ProductService {
   async findById(productId) {
     let findProduct = await findProductByName(productId); 
     if (findProduct == null) return { message: "Not found product with id " + productId};  
-    return findProduct;
+    console.log(findProduct);
+    const productResponse = { id: v4(), name: findProduct.name, price: findProduct.price, stock: findProduct.stock };   
+    return productResponse;
   }
 
   async saveProduct(newProduct) {   

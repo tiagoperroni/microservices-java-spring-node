@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
+import com.tiagoperroni.client.model.ClientResponseLogin;
 import com.tiagoperroni.client.service.ClientService;
 
 import org.slf4j.Logger;
@@ -34,7 +34,14 @@ public class ClientController {
     @Autowired
     private ClientService clientService;
 
-    private Logger logger = LoggerFactory.getLogger(ClientController.class);
+    private Logger logger = LoggerFactory.getLogger(ClientController.class);    
+
+    @PostMapping("/login/{email}")
+    public ResponseEntity<ClientResponseLogin> getClientLogin(@PathVariable String email) {
+        var clientResponse = clientService.getClientLogin(email);
+        logger.info("Recebendo requisição para login: {}", clientResponse);
+        return new ResponseEntity<>(clientResponse, HttpStatus.OK);
+    }
 
     @GetMapping("/{email}")
     public ResponseEntity<ClientResponse> getClient(@PathVariable String email) {

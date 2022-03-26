@@ -17,9 +17,7 @@ public class OrderItems {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)   
-    private Integer id;
-    
-    private Integer productId;
+    private Integer id;   
     private String productName;
     private Double productPrice;
     private int quantity;   

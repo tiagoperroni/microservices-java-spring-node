@@ -36,7 +36,7 @@ public class LoginClientController {
     @PostMapping
     @Retry(name = "retryForClientRequest", fallbackMethod = "retryForClientRequestFallBack")
     public ResponseEntity<String> clientLogin(@RequestBody ClientLogin clientLogin) {
-        logger.info("New client login was received with cpf: {}", clientLogin);
+        logger.info("ClientLoginController request with e-mail: {}", clientLogin.getEmail());
         return new ResponseEntity<>(this.clientLoginService.clientLoginService(clientLogin), HttpStatus.ACCEPTED);
     }
 
@@ -47,7 +47,7 @@ public class LoginClientController {
 
     }
 
-    @GetMapping("token/{email}")
+    @GetMapping("/token/{email}")
     public ResponseEntity<String> getToken(@PathVariable("email") String email) {
         logger.info("New client token request.");
         return new ResponseEntity<>(this.authenticationService.getToken(email), HttpStatus.OK);

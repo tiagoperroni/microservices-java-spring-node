@@ -7,10 +7,10 @@ class ProductController {
     return res.status(200).json(products);
   }
 
-  async getProductByName(req, res) {
+  async getProductById(req, res) {
     console.log("LOG => Requisição para buscar produto por nome recebida.");
-    let productId = await productService.findById(req.params.id);  
-    console.log(productId.message);
+    let productId = await productService.findById(req.params.id); 
+    console.log(productId);
     return productId.message === undefined ? res.status(200).json(productId) : res.status(202).json(productId);
   }
 
@@ -18,7 +18,7 @@ class ProductController {
     console.log("LOG => Requisição para salvar produto recebida.");
     const { name, price, stock } = req.body;
     let productRequest = { name: name, price: price, stock: stock };
-    let productResponse = await productService.saveProduct(productRequest);
+    let productResponse = await productService.saveProduct(productRequest);   
     return productResponse.name !== productRequest.name ? res.status(400).json(productResponse) : res.status(201).json(productResponse);
   }
 }

@@ -1,15 +1,14 @@
 package com.tiagoperroni.order.feign;
 
-import com.tiagoperroni.order.models.Product;
-
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "product-api")
-public interface ProductFeignRequest {
+@FeignClient(name = "authentication")
+public interface AuthenticationRequestToken {
+
+    @GetMapping("/login/token/{email}")
+    public ResponseEntity<String> getToken(@PathVariable("email") String email);
     
-    @GetMapping("/product/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable("id") String id);
 }

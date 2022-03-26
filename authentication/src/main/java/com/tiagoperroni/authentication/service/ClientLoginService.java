@@ -11,6 +11,8 @@ import com.tiagoperroni.authentication.models.ClientLoginToken;
 import com.tiagoperroni.authentication.models.ClientRequest;
 import com.tiagoperroni.authentication.repository.ClientLoginTokenRepository;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,8 @@ public class ClientLoginService {
 
     @Autowired
     private FeignClientRequest clientRequest;
+
+    Logger logger = LoggerFactory.getLogger(ClientLoginService.class);
 
     @Autowired
     private ClientLoginTokenRepository clientLoginTokenRepository;
@@ -34,8 +38,9 @@ public class ClientLoginService {
      */
 
     public String clientLoginService(ClientLogin clientLogin) {
+        logger.info("ClientLoginService request with e-mail: {}", clientLogin.getEmail());
         try {
-            var clientRequest = this.clientRequest.clientLogin(clientLogin).getBody();
+            var clientRequest = this.clientRequest.clientLogin(clientLogin.getEmail()).getBody();
             this.verifyPassword(clientRequest, clientLogin);
             if (clientRequest != null) {
                 String token = UUID.randomUUID().toString();
@@ -44,8 +49,9 @@ public class ClientLoginService {
                 clientLoginToken.setEmail(clientLogin.getEmail());
                 clientLoginToken.setToken(token);
                 this.clientLoginTokenRepository.deleteAll();
-                this.clientLoginTokenRepository.save(clientLoginToken);
-                return token;
+                var clientTokenResponse = this.clientLoginTokenRepository.save(clientLoginToken);
+                logger.info("ClientLoginService response with token: {}", clientTokenResponse.getToken());
+                return "Token: " + token;
             }
         } catch (Exception e) {
             if (e.getMessage().contains("Not found client with")) {
