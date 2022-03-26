@@ -9,11 +9,14 @@ require('dotenv').config();
 const actuator = require('express-actuator');
 const actuatorOptions = require("./actuator-helper.js");
 const routes = require("./src/routes/product.routes.js");
+const conectDB = require("./src/db/mongo_db.js");
 
 const app = express();
 app.use(express.json());
 app.use(actuator(actuatorOptions));
 app.use(routes);
+
+conectDB();
 
 const PORT = process.env.SERVER_PORT || 3232;
 
