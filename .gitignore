@@ -1,1 +1,3 @@
 /config
+/product/.env
+/product/node_modules
