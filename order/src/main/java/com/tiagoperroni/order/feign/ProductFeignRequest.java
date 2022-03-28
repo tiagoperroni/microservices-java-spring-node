@@ -12,4 +12,7 @@ public interface ProductFeignRequest {
     
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable("id") String id);
+
+    @GetMapping("/product/{id}/{stock}")
+    public ResponseEntity<Product> updateStockRequest(@PathVariable("id") String id, @PathVariable("stock") int quantity);
 }

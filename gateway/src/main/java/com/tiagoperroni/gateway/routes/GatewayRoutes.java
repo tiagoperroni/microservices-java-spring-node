@@ -25,10 +25,15 @@ public class GatewayRoutes {
             .addRequestHeader("X-Response-Time", date.toString()))
             .uri("lb://PRODUCT-API"))
 
-            .route(r -> r.path("/authentication/**")
-            .filters(f -> f.rewritePath("/authentication/(?<segment>.*)", "/${segment}")
-            .addRequestHeader("X-Response-Time", date.toString()))
-            .uri("lb://AUTHENTICATION"))
+            // .route(r -> r.path("/authentication/**")
+            // .filters(f -> f.rewritePath("/authentication/(?<segment>.*)", "/${segment}")
+            // .addRequestHeader("X-Response-Time", date.toString()))
+            // .uri("lb://AUTHENTICATION"))
+
+            // .route(r -> r.path("/authenticationclient/**")
+            // .filters(f -> f.rewritePath("/authenticationclient/(?<segment>.*)", "/${segment}")
+            // .addRequestHeader("X-Response-Time", date.toString()))
+            // .uri("lb://AUTHENTICATIONCLIENT"))
 
             .route(r -> r.path("/orders/**")
             .filters(f -> f.rewritePath("/orders/(?<segment>.*)", "/${segment}")

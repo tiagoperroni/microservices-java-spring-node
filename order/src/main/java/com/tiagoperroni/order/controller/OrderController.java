@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.tiagoperroni.order.models.ClientLogin;
 import com.tiagoperroni.order.models.Order;
 import com.tiagoperroni.order.models.OrderRequest;
 import com.tiagoperroni.order.models.OrderResponse;
-import com.tiagoperroni.order.service.ClientLoginService;
 import com.tiagoperroni.order.service.OrderListGet;
 import com.tiagoperroni.order.service.OrderService;
 
@@ -33,10 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     @Autowired
-    private OrderService orderService;
-
-    @Autowired
-    private ClientLoginService clientLoginService;
+    private OrderService orderService;   
 
     @Autowired
     private OrderListGet orderListGet;
@@ -68,6 +63,7 @@ public class OrderController {
         var error = new HashMap<String, String>();
         if (ex.getMessage().contains("product")) {
             error.put("error", "Microservice Product-Api is down.");
+            error.put("original", ex.getMessage());
             return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
         } else if (ex.getMessage().contains("client")) {
             error.put("error", "Microservice Client-Api is down.");

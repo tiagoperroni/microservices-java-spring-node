@@ -10,9 +10,20 @@ class ProductController {
   async getProductById(req, res) {
     console.log("LOG => Requisição para buscar produto por nome recebida.");
     try {
+      let id = req.params.id;    
+      let productId = await productService.findById(id);
+      return res.status(200).json(productId);
+    } catch (error) {
+      return res.status(404).json(error);
+    }
+  }
+
+  async getProductByIdAndUpdateStock(req, res) {
+    console.log("LOG => Requisição para buscar produto por nome recebida.");
+    try {
       let id = req.params.id;
       let quantity = req.params.quantity;
-      let productId = await productService.findById(id, quantity);
+      let productId = await productService.findByIdAndUpdateStock(id, quantity);
       return res.status(200).json(productId);
     } catch (error) {
       return res.status(404).json(error);

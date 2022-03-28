@@ -98,9 +98,16 @@ public class OrderService {
      * @return
      */
 
-    public Product getProductRequest(String id, int quantity) {
+    public Product getProductRequest(String id) {
         logger.info("Enviando requisição para API PRODUTOS");
         Product responseProduct = this.productFeignRequest.getProductById(id).getBody();
+        logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
+        return responseProduct;
+    }
+
+    public Product updateStockRequest(String id, int quantity) {
+        logger.info("Enviando requisição para API PRODUTOS");
+        Product responseProduct = this.productFeignRequest.updateStockRequest(id, quantity).getBody();
         logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
         return responseProduct;
     }
@@ -115,13 +122,16 @@ public class OrderService {
     public List<OrderItems> prepareOrder(OrderRequest request) {
         var orderItems = new ArrayList<OrderItems>();
         for (ProductList product : request.getProductList()) {
-            var productResponse = this.getProductRequest(product.getId(), product.getQuantity());
-            this.validaStock(productResponse, product);
+            var productResponse = this.getProductRequest(product.getId());
+            this.validaStock(productResponse, product.getQuantity());
             var orderItem = new OrderItems();
             orderItem.setProductName(productResponse.getName());
             orderItem.setProductPrice(productResponse.getPrice());
             orderItem.setQuantity(product.getQuantity());
             orderItems.add(orderItem);
+        }
+        for (ProductList product : request.getProductList()) {
+            this.updateStockRequest(product.getId(), product.getQuantity());
         }
 
         return orderItems;
@@ -133,8 +143,9 @@ public class OrderService {
      * @param product
      */
 
-    private void validaStock(Product product, ProductList productList) {
-        if (product.getStock() < productList.getQuantity()) {
+    private void validaStock(Product product, int productRequest) {
+        if (product.getStock() >= productRequest) {             
+        } else {
             throw new StockNotAvaibleException(
                     String.format("Quantidade solicitada do produto %s está acima do estoque. Quantidade atual é %s",
                             product.getName(), product.getStock()));

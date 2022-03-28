@@ -17,6 +17,7 @@ import com.tiagoperroni.client.mapper.ClientMapper;
 import com.tiagoperroni.client.model.AdressRequest;
 import com.tiagoperroni.client.model.AdressResponse;
 import com.tiagoperroni.client.model.Client;
+import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.model.ClientResponseLogin;
@@ -53,6 +54,10 @@ public class ClientService {
         logger.info("Service: Received a client request with id: {}", email);
         var client = this.clientRepository.findByEmail(email).orElse(null);
         return ClientMapper.convertFromClient(client);
+    }
+
+    public String clientLogin(ClientLogin clientLogin) {
+        return this.tokenFeignRequest.getToken(clientLogin).getBody();         
     }
 
     public ClientResponseLogin getClientLogin(String email) {

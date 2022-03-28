@@ -9,7 +9,14 @@ class ProductService {
     return product;
   }
 
-  async findById(id, quantity) {     
+  async findById(id) {     
+    let findProduct = await findProductById(id); 
+    if (findProduct == null) return { message: "Not found product with id " + productId};    
+    const productResponse = { id: v4(), name: findProduct.name, price: findProduct.price, stock: findProduct.stock };   
+    return productResponse;
+  }
+
+  async findByIdAndUpdateStock(id, quantity) {     
     let product = await this.updateStock(id, quantity);
     if (product == null) return { message: "Not found product with id " + productId};    
     const productResponse = { id: v4(), name: product.name, price: product.price, stock: product.stock };   
@@ -35,7 +42,7 @@ class ProductService {
   }
 
   async deleteProduct(productId) {   
-    let findProduct = await findProductByName(productId); 
+    let findProduct = await findProductById(productId); 
     if (findProduct == null) return { message: "Not found product with id " + productId};        
     await deleteProduct(productId);
     return { message: "Produto was deleted with success." };
@@ -43,12 +50,16 @@ class ProductService {
 
   async updateStock(id, quantity) {    
     let findProduct = await findProductById(id); 
-    if (findProduct === null) throw new ProductException("Product not found.", 404);
+    if (findProduct === null) throw new ProductException("Product not found.", 404);   
     let product = new ProductModel().convertProduct(findProduct);
     console.log("LOG: Service = atualizando estoque.");
     product.stock -= +quantity;
     this.updateProduct(id, product);
     return product;
+  }
+
+  verifyStock() {
+
   }
 
   async verifyDuplicateProduct(product) {

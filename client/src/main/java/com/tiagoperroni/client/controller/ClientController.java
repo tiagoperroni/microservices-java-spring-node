@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.tiagoperroni.client.model.ClientLogin;
 import com.tiagoperroni.client.model.ClientRequest;
 import com.tiagoperroni.client.model.ClientResponse;
 import com.tiagoperroni.client.model.ClientResponseLogin;
@@ -41,6 +42,25 @@ public class ClientController {
         var clientResponse = clientService.getClientLogin(email);
         logger.info("Recebendo requisição para login: {}", clientResponse);
         return new ResponseEntity<>(clientResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/login")
+    @Retry(name = "requestAdressClient", fallbackMethod = "requestLoginFallBack")
+    public ResponseEntity<String> clientLogin(@RequestBody ClientLogin clientLogin) {      
+        logger.info("CONTROLLER: Recebendo requisição para login método clientLogin: {}");
+        return new ResponseEntity<>(this.clientService.clientLogin(clientLogin), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Map<String, String>> requestLoginFallBack(Throwable ex) {
+        var error = new HashMap<String, String>();
+        if (ex.getMessage().contains("The password informed do not math with this e-mail.")) {
+            error.put("Error", "The password informed do not math with this e-mail.");
+            error.put("StatusCode", "400");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST); 
+        }       
+            error.put("Error", ex.getMessage());
+            error.put("StatusCode", "400");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);      
     }
 
     @GetMapping("/{email}")
