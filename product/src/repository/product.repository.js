@@ -1,11 +1,15 @@
 const productModel = require('../model/product.schema');
 
 const findAllProducts = () => productModel.find();
-const findProductByName = (productId) => productModel.findById(productId);
+const findProductById = (id) => productModel.findById(id);
 const saveProduct = (newProduct) => productModel.create(newProduct);
+const updateProduct = (productId, newProduct) => productModel.findByIdAndUpdate(productId, newProduct, {new: true});
+const deleteProduct = (productId) => productModel.findByIdAndDelete(productId);
 
 module.exports = {
   findAllProducts,
   saveProduct,
-  findProductByName
+  findProductById,
+  updateProduct,
+  deleteProduct,
 };
