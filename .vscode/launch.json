@@ -2,6 +2,12 @@
   "configurations": [
     {
       "type": "java",
+      "name": "Launch AuthenticationClientApplication",
+      "request": "launch",
+      "mainClass": "com.tiagoperroni.authenticationclient.AuthenticationClientApplication"
+    },
+    {
+      "type": "java",
       "name": "Launch AuthenticationApplication",
       "request": "launch",
       "mainClass": "com.tiagoperroni.authentication.AuthenticationApplication"
