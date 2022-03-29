@@ -1,11 +1,12 @@
 package com.tiagoperroni.ordermail.kafka;
 
+import java.io.IOException;
+
 import javax.mail.MessagingException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tiagoperroni.ordermail.email.EmailService;
+import com.tiagoperroni.ordermail.invoice.InvoiceConfig;
 import com.tiagoperroni.ordermail.model.OrderItems;
 import com.tiagoperroni.ordermail.model.OrderMessage;
 
@@ -21,18 +22,40 @@ public class KafkaOrderListener {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private InvoiceConfig invoiceConfig;
+
     private Logger logger = LoggerFactory.getLogger(KafkaOrderListener.class);
 
     @KafkaListener(topics = "${topic.shop-order}", groupId = "${spring.kafka.consumer.group-id}")
-    public void getMessage(String message) throws JsonMappingException, JsonProcessingException, MessagingException {
-        logger.info("New order was received: {}", message);
+    public void getMessage(String message) throws MessagingException, IOException {
+        logger.info("KafkaOrderListener: New order was received: {}", message);
 
         ObjectMapper mapper = new ObjectMapper();
 
         var orderReceived = mapper.readValue(message, OrderMessage.class);
 
-        this.emailService.sendMail(orderReceived.getClientEmail(), "Seu pedido foi recebido!",
-                this.textMessage(orderReceived), "arquivos/invoice.pdf");
+        System.out.println(" ");
+        logger.info("KafkaOrderListener: Creating the invoice.");
+        System.out.println(" ");
+        this.invoiceConfig.execute(orderReceived.getClientName(), orderReceived.getClientCpf(),
+                orderReceived.getOrderDate(), orderReceived.getId(), orderReceived.getOrderItems(),
+                orderReceived.getTotalOrder());
+
+        try {
+            Thread.sleep(7000);
+            // attachMail
+            logger.info("KafkaOrderListener: Starting to prepare a new order mail");
+            this.emailService.sendAttachMail(orderReceived.getClientEmail(), "Seu pedido foi recebido!",
+                    this.textMessage(orderReceived), "arquivos/invoice.pdf");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // simpleMail
+        // this.emailService.sendSimpleMail(orderReceived.getClientEmail(), "Seu pedido
+        // foi recebido!",
+        // this.textMessage(orderReceived));
 
     }
 

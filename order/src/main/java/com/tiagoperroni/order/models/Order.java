@@ -1,15 +1,14 @@
 package com.tiagoperroni.order.models;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
-import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+
 
 import lombok.Data;
 
@@ -28,10 +27,12 @@ public class Order {
     private String numberOfHouse;
 
 
-    @OneToMany(targetEntity = OrderItems.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    //@OneToMany(targetEntity = OrderItems.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @Embedded
     private List<OrderItems> items;
     private int quantityTotal;
     private Double totalPrice;
-    private LocalDateTime orderDate;
+    //@JsonFormat(pattern = "dd/MM/yyyy")
+    private String orderDate;
 
 }

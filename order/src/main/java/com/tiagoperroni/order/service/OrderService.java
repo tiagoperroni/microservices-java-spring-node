@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +63,7 @@ public class OrderService {
         orderResponse.setItems(orderItems);
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
         orderResponse.setTotalPrice(this.formatDouble(orderItems));
-        orderResponse.setOrderDate(LocalDateTime.now());
+        orderResponse.setOrderDate(LocalDate.now().toString());
         logger.info("OrderService - Salvando novo pedido no DB");
         var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));
         orderResponse.setId(order.getId());
@@ -128,6 +128,7 @@ public class OrderService {
             orderItem.setProductName(productResponse.getName());
             orderItem.setProductPrice(productResponse.getPrice());
             orderItem.setQuantity(product.getQuantity());
+            orderItem.setTotal(product.getQuantity() * productResponse.getPrice());
             orderItems.add(orderItem);
         }
         for (ProductList product : request.getProductList()) {

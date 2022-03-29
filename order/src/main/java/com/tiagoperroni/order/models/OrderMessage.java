@@ -15,7 +15,7 @@ public class OrderMessage {
     private List<OrderItems> orderItems;
 
     private Integer totalQuantity;
-    private Double totalOrder;
+    private Double totalOrder;   
     private String OrderDate;
     
 }

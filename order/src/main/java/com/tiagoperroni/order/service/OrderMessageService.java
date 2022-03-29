@@ -1,6 +1,6 @@
 package com.tiagoperroni.order.service;
 
-import java.util.UUID;
+import java.time.LocalDate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,14 +24,14 @@ public class OrderMessageService {
 
         log.info("== Start prepare order message ==");
         var orderMessage = new OrderMessage();
-        orderMessage.setId(UUID.randomUUID().toString());
+        orderMessage.setId(orderResponse.getId().toString());
         orderMessage.setClientName(orderResponse.getClient().getName());
         orderMessage.setClientCpf(orderResponse.getClient().getCpf());
         orderMessage.setClientEmail(orderResponse.getClient().getEmail());
         orderMessage.setOrderItems(orderResponse.getItems());
         orderMessage.setTotalQuantity(orderResponse.getQuantityTotal());
         orderMessage.setTotalOrder(orderResponse.getTotalPrice());
-        orderMessage.setOrderDate(orderResponse.getOrderDate().toString());
+        orderMessage.setOrderDate(LocalDate.now().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         String message;

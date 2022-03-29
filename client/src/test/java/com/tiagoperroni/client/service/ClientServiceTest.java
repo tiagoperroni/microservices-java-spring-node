@@ -8,7 +8,7 @@
     import com.tiagoperroni.client.exceptions.DuplicatedClientException;
     import com.tiagoperroni.client.exceptions.InvalidTokenException;
     import com.tiagoperroni.client.feign.TokenFeignRequest;
-    import com.tiagoperroni.client.mapper.ClientMapper;
+
     import com.tiagoperroni.client.model.AdressRequest;
     import com.tiagoperroni.client.model.Client;
     import com.tiagoperroni.client.model.ClientRequest;
@@ -21,7 +21,6 @@
     import org.mockito.Mock;
     import static org.mockito.Mockito.*;
 
-    import org.mockito.Mockito;
     import org.mockito.MockitoAnnotations;
     import org.springframework.core.env.Environment;
     import org.springframework.http.HttpStatus;
@@ -125,7 +124,7 @@
             try {
                 var clientRequest = new ClientRequest();
                 clientRequest.setEmail("");
-                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+                this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
             }catch (Exception ex) {
                 assertEquals(DataNotFoundException.class, ex.getClass());
                 assertEquals("Do you need informe the CPF and E-mail.", ex.getMessage());
@@ -142,7 +141,7 @@
                 var clientRequest = new ClientRequest();
                 clientRequest.setEmail("tiagoperroni@gmail.com");
                 clientRequest.setCpf("12365498");
-                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+                this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
             }catch (Exception ex) {
                 assertEquals(DuplicatedClientException.class, ex.getClass());
                 assertEquals("Already exists a client with the CPF informed.", ex.getMessage());
@@ -159,7 +158,7 @@
                 var clientRequest = new ClientRequest();
                 clientRequest.setEmail("tiagoperroni@gmail.com");
                 clientRequest.setCpf("12365498");
-                String response = this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
+                this.clientService.updateClient("tiagoperroni@gmail.com", clientRequest, "123456789");
             }catch (Exception ex) {
                 assertEquals(ClientNotFoundException.class, ex.getClass());
                 assertEquals("Not found a client with email tiagoperroni@gmail.com", ex.getMessage());
@@ -167,7 +166,7 @@
         }
 
         @Test
-        public void testverifyClientCpfAndEmailAlreadyExists_ShouldFail() {
+        public void testVerifyClientCpfAndEmailAlreadyExists_ShouldFail() {
 
             when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
             try {
@@ -182,7 +181,7 @@
         }
 
         @Test
-        public void testverifyClientCpfAndCPFlAlreadyExists_ShouldFail() {
+        public void testVerifyClientCpfAndCPFlAlreadyExists_ShouldFail() {
 
             Optional<Client> client = Optional.of(new Client());
             client.get().setEmail("");
@@ -200,7 +199,7 @@
         }
 
         @Test
-        public void testverifyToken_ShouldFail() {
+        public void testVerifyToken_ShouldFail() {
 
             when(this.tokenFeignRequest.getToken(anyString())).thenReturn(new ResponseEntity<String>("123456789", HttpStatus.OK));
             try {
@@ -226,7 +225,7 @@
         }
 
         @Test
-        public void testgetPropertiesDetails() throws JsonProcessingException {
+        public void testGetPropertiesDetails() throws JsonProcessingException {
 
             var response =  this.clientService.getPropertiesDetails();
             assertNotNull(response);

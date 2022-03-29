@@ -1,8 +1,6 @@
  package com.tiagoperroni.client.controller;
 
  import com.fasterxml.jackson.core.JsonProcessingException;
- import com.tiagoperroni.client.exceptions.ClientNotFoundException;
- import com.tiagoperroni.client.model.Client;
  import com.tiagoperroni.client.model.ClientRequest;
  import com.tiagoperroni.client.model.ClientResponse;
  import com.tiagoperroni.client.service.ClientService;
@@ -13,7 +11,6 @@
  import org.mockito.Mock;
  import static org.mockito.Mockito.*;
  import org.mockito.MockitoAnnotations;
- import org.springframework.http.HttpStatus;
  import org.springframework.http.ResponseEntity;
 
  import java.util.HashMap;
