@@ -33,11 +33,16 @@ class ProductService {
     return product;
   }
 
-  async updateProduct(id, newProduct) {     
-    let findProduct = await findProductById(id);    
+  async updateProduct(id, newProduct) { 
+  
+    let findProduct = await findProductById(id);      
+    console.log("AQUI ===>>");
     if (findProduct === null) throw new ProductException("Not found product with id " + id, 404); 
-    let productRequest = { name: newProduct.name, price: newProduct.price, stock: newProduct.stock };    
-    let product = await updateProduct(productId, productRequest);
+    console.log("AQUI ===>>");    
+    let productModel = new ProductModel().convertProduct(newProduct);   
+    productModel.id = id;
+    let product = await updateProduct(id, productModel);
+    console.log("AQUI ===>> AQUI");
     return product;
   }
 

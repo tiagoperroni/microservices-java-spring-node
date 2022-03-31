@@ -8,7 +8,7 @@ class ProductController {
   }
 
   async getProductById(req, res) {
-    console.log("LOG => Requisição para buscar produto por nome recebida.");
+    console.log("LOG => Requisição para buscar produto por id recebida.");
     try {
       let id = req.params.id;
       let productId = await productService.findById(id);
@@ -19,7 +19,7 @@ class ProductController {
   }
 
   async getProductByIdAndUpdateStock(req, res) {
-    console.log("LOG => Requisição para buscar produto por nome recebida.");
+    console.log("LOG => Requisição para buscar produto por id e atualizar estoque recebida.");
     try {
       let id = req.params.id;
       let quantity = req.params.quantity;
@@ -47,7 +47,7 @@ class ProductController {
     try {
       const { name, price, stock } = req.body;
       const id = req.params.id;
-      let productRequest = { name: name, price: price, stock: stock };
+      let productRequest = { name: name, price: price, stock: stock };     
       let productResponse = await productService.updateProduct(id, productRequest);
       return res.status(202).json(productResponse);
     } catch (error) {
