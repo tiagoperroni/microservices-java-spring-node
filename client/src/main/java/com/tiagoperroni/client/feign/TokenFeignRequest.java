@@ -16,6 +16,6 @@ public interface TokenFeignRequest {
     public ResponseEntity<String> getToken(@PathVariable("email") String email);
 
     @PostMapping("/login")
-    public ResponseEntity<String> getToken(@RequestBody ClientLogin clientLogin);
+    public ResponseEntity<String> getTokenLogin(@RequestBody ClientLogin clientLogin);
 
 }

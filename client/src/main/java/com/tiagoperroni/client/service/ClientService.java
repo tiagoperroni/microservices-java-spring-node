@@ -57,7 +57,7 @@ public class ClientService {
     }
 
     public String clientLogin(ClientLogin clientLogin) {
-        return this.tokenFeignRequest.getToken(clientLogin).getBody();         
+        return this.tokenFeignRequest.getTokenLogin(clientLogin).getBody();
     }
 
     public ClientResponseLogin getClientLogin(String email) {

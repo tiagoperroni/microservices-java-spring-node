@@ -9,10 +9,7 @@
     import com.tiagoperroni.client.exceptions.InvalidTokenException;
     import com.tiagoperroni.client.feign.TokenFeignRequest;
 
-    import com.tiagoperroni.client.model.AdressRequest;
-    import com.tiagoperroni.client.model.Client;
-    import com.tiagoperroni.client.model.ClientRequest;
-    import com.tiagoperroni.client.model.ClientResponse;
+    import com.tiagoperroni.client.model.*;
     import com.tiagoperroni.client.repository.ClientRepository;
 
     import org.junit.jupiter.api.BeforeEach;
@@ -230,6 +227,31 @@
             var response =  this.clientService.getPropertiesDetails();
             assertNotNull(response);
             assertTrue(response.toString().startsWith("{buildVersion"));
+        }
+
+        @Test
+        public void testGetClientLogin() throws JsonProcessingException {
+
+            when(this.clientRepository.findByEmail(anyString())).thenReturn(this.returnClientOptional());
+
+            var response =  this.clientService.getClientLogin("tiagoperroni@gmail.com");
+            assertNotNull(response);
+            assertEquals("tiagoperroni@gmail.com", response.getEmail());
+            assertEquals("052.586.987-56", response.getCpf());
+        }
+
+        @Test
+        public void testClientLogin() throws JsonProcessingException {
+
+            when(this.tokenFeignRequest.getTokenLogin(any())).thenReturn(new ResponseEntity<String>("1236547", HttpStatus.OK));
+
+            var clientLogin = new ClientLogin();
+            clientLogin.setEmail("tiago@gmail.com");
+            clientLogin.setPassword("12345");
+            var response =  this.clientService.clientLogin(clientLogin);
+
+            assertNotNull(response);
+            assertEquals("1236547", response);
         }
 
         /**
