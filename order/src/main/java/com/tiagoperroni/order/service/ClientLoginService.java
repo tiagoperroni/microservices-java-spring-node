@@ -16,11 +16,13 @@ public class ClientLoginService {
     /***
      * Validando se token é valido
      */
-    public void verifyTokenIsValid(OrderRequest orderRequest, String token) {
+    public Boolean verifyTokenIsValid(OrderRequest orderRequest, String token) {
         var clientLoginToken = this.authenticationRequestToken.getToken(orderRequest.getClientEmail());
 
         if (!clientLoginToken.getBody().equals(token)) {
             throw new InvalidTokenException("Token is invalid. Try login to get a new Token.");
+        } else {
+            return true;
         }
     }
 

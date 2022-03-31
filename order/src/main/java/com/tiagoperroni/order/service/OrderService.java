@@ -56,18 +56,26 @@ public class OrderService {
 
     public OrderResponse makeOrder(OrderRequest orderRequest, String token) {
         logger.info("OrderService - Recebendo novo pedido: {}", orderRequest.getClientEmail());
+
         this.verifyToken(orderRequest, token);
+
         var orderResponse = new OrderResponse();
         orderResponse.setClient(this.getClientRequest(orderRequest.getClientEmail()));
+
         var orderItems = this.prepareOrder(orderRequest);
         orderResponse.setItems(orderItems);
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
         orderResponse.setTotalPrice(this.formatDouble(orderItems));
         orderResponse.setOrderDate(LocalDate.now().toString());
+
         logger.info("OrderService - Salvando novo pedido no DB");
+
         var order = this.orderRepository.save(OrderMapper.convertFromResponse(orderResponse));
+
         orderResponse.setId(order.getId());
+
         this.orderMessageService.sendOrderMessage(orderResponse);
+
         logger.info("OrderService - Enviando detalhes do pedido");
         return orderResponse;
     }
@@ -105,11 +113,10 @@ public class OrderService {
         return responseProduct;
     }
 
-    public Product updateStockRequest(String id, int quantity) {
+    public void updateStockRequest(String id, int quantity) {
         logger.info("Enviando requisição para API PRODUTOS");
-        Product responseProduct = this.productFeignRequest.updateStockRequest(id, quantity).getBody();
-        logger.info("Recebendo dados da API PRODUTOS: {}", responseProduct);
-        return responseProduct;
+        this.productFeignRequest.updateStockRequest(id, quantity);
+        logger.info("Recebendo dados da API PRODUTOS: {}");
     }
 
     /**

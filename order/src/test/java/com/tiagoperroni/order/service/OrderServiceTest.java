@@ -1,113 +1,109 @@
-// package com.tiagoperroni.order.service;
+package com.tiagoperroni.order.service;
+import com.tiagoperroni.order.feign.AuthenticationRequestToken;
+import com.tiagoperroni.order.feign.ClientFeignRequest;
+import com.tiagoperroni.order.feign.ProductFeignRequest;
+import static org.junit.jupiter.api.Assertions.*;
 
-// import com.tiagoperroni.order.exceptions.ClientNotActiveException;
-// import com.tiagoperroni.order.exceptions.StockNotAvaibleException;
-// import com.tiagoperroni.order.feign.ClientFeignRequest;
-// import com.tiagoperroni.order.feign.ProductFeignRequest;
-// import com.tiagoperroni.order.model.ClientRequest;
-// import com.tiagoperroni.order.model.OrderRequest;
-// import com.tiagoperroni.order.model.Product;
-// import com.tiagoperroni.order.model.ProductList;
-// import static org.junit.jupiter.api.Assertions.*;
+import com.tiagoperroni.order.kafka.KafkaProducerConfig;
+import com.tiagoperroni.order.models.*;
+import com.tiagoperroni.order.repository.OrderRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import static org.mockito.Mockito.*;
 
-// import org.junit.jupiter.api.BeforeEach;
-// import org.junit.jupiter.api.Test;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import static org.mockito.Mockito.*;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
-// import org.mockito.MockitoAnnotations;
-// import org.springframework.http.HttpStatus;
-// import org.springframework.http.ResponseEntity;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-// import java.util.ArrayList;
-// import java.util.List;
+class OrderServiceTest {
 
-// class OrderServiceTest {
+    public static final String URL_SERVER_PRODUCT = "http://localhost:3000/product/1/2";
+    @InjectMocks
+    private OrderService orderService;
 
-//     public static final String URL_SERVER_PRODUCT = "http://localhost:3000/product/1/2";
-//     @InjectMocks
-//     private OrderService orderService;
+    @Mock
+    private ClientFeignRequest clientFeignRequest;
 
-//     @Mock
-//     private ClientFeignRequest clientFeignRequest;
+    @Mock
+    private OrderRepository orderRepository;
 
-//     @Mock
-//     private ProductFeignRequest productFeignRequest;
+    @Mock
+    private ClientLoginService clientLoginService;
 
-//     //@Mock
-//     //private RestTemplate restTemplate;
+    @Mock
+    private ProductFeignRequest productFeignRequest;
 
-//     @BeforeEach
-//     public void setUp() {
-//         MockitoAnnotations.initMocks(this);
-//     }
+    @Mock
+    private OrderMessageService orderMessageService;
 
-//     @Test
-//     public void testMakeOrder_Success() {
+    @Mock
+    private KafkaProducerConfig kafka;
 
-//         ProductList productList = new ProductList(1, 2);
-//         List<ProductList> productListList = new ArrayList<>();
-//         productListList.add(productList);
-//         OrderRequest request = new OrderRequest(productListList, 1);
-//         request.setClientId(1);
-//         request.setClientId(1);
+    @Mock
+    private AuthenticationRequestToken authenticationRequestToken;
 
-//         ClientRequest client = new ClientRequest(1, "Tiago Perroni", "054.659.789-78", true, null);
-//         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<ClientRequest>(client, HttpStatus.OK));
+    //@Mock
+    //private RestTemplate restTemplate;
 
-//         Product product = new Product(1, "Refri Cola", 7.98, 15);
-//         when(this.productFeignRequest.getProductById(anyInt(), anyInt())).thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
+    }
 
-//         //when(this.restTemplate.getForEntity(URL_SERVER_PRODUCT, Product.class))
-//                 //.thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
+    @Test
+    public void testMakeOrder_Success() {
 
-//         var orderResponse = this.orderService.makeOrder(request);
+        var clientRequest = new ClientRequest();
+        clientRequest.setId(1);
+        clientRequest.setEmail("tiago@gmail.com");
+        clientRequest.setIsActive(true);
+        var adress = new AdressRequest();
+        adress.setCep("8754");
+        clientRequest.setAdress(adress);
 
-//         assertEquals("Tiago Perroni", orderResponse.getClient().getName());
-//         assertEquals("Refri Cola", orderResponse.getItems().get(0).getProductName());
-//     }
+        when(this.authenticationRequestToken.getToken(anyString()))
+                .thenReturn(new ResponseEntity<String>("12345", HttpStatus.OK));
 
-//     @Test
-//     public void testMakeOrder_Fail_OutOfStock() {
+        when(this.clientFeignRequest.getClient(anyString()))
+                .thenReturn(new ResponseEntity<ClientRequest>(clientRequest, HttpStatus.OK));
 
-//         ProductList productList = new ProductList(1, 20);
-//         List<ProductList> productListList = new ArrayList<>();
-//         productListList.add(productList);
-//         OrderRequest request = new OrderRequest(productListList, 1);
+        var orderRequest = new OrderRequest();
+        orderRequest.setClientEmail("tiago@gmail.com");
+        when(this.clientLoginService.verifyTokenIsValid(orderRequest, "12345")).thenReturn(true);
 
-//         ClientRequest client = new ClientRequest(1, "Tiago Perroni", "054.659.789-78", true, null);
-//         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<ClientRequest>(client, HttpStatus.OK));
+        var product = new Product();
+        product.setId("123");
+        product.setPrice(7.98);
+        product.setStock(100);
+        when(this.productFeignRequest.getProductById(anyString()))
+                .thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
 
-//         Product product = new Product(1, "Refri Cola", 7.98, 15);
-//         when(this.productFeignRequest.getProductById(anyInt(), anyInt())).thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
+        var order = new Order();
+        order.setId(1); order.setClientEmail("tiago@gmail.com");
+        when(this.orderRepository.save(any())).thenReturn(order);
 
-//         //when(this.restTemplate.getForEntity("http://localhost:3000/product/1/20", Product.class))
-//                 //.thenReturn(new ResponseEntity<Product>(new Product(1, "Refri Cola", 7.98, 15), HttpStatus.OK));
+        when(this.productFeignRequest.updateStockRequest(anyString(), anyInt())).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
 
-//         Exception exception = assertThrows(StockNotAvaibleException.class, () ->
-//                this.orderService.makeOrder(request));
+        doNothing().when(this.orderMessageService).sendOrderMessage(any());
 
-//         assertEquals("Quantidade solicitada do produto Refri Cola está acima do estoque. Quantidade atual é 15", exception.getMessage());
-//         assertEquals(StockNotAvaibleException.class, exception.getClass());
-//     }
+        doNothing().when(this.kafka).sendMessage(anyString());
 
-//     @Test
-//     public void testMakeOrder_Fail_ClientIsNotActive() {
+        var newOrderRequest = new OrderRequest();
+        newOrderRequest.setClientEmail("tiago@gmail.com");
+        var newProduct = new ProductList();
+        newProduct.setId("123"); newProduct.setQuantity(3);
+        List<ProductList> productList = new ArrayList<>(Arrays.asList(newProduct));
+        newOrderRequest.setProductList(productList);
+        var newOrder = this.orderService.makeOrder(newOrderRequest, "12345");
 
-//         ProductList productList = new ProductList(1, 4);
-//         List<ProductList> productListList = new ArrayList<>();
-//         productListList.add(productList);
-//         OrderRequest request = new OrderRequest(productListList, 1);
-//         request.setClientId(1);
-//         request.setClientId(1);
+        assertEquals(1, newOrder.getId());
+        assertEquals("tiago@gmail.com", newOrder.getClient().getEmail());
+    }
 
-//         ClientRequest client = new ClientRequest(1, "Tiago Perroni", "054.659.789-78", false, null);
-//         when(this.clientFeignRequest.getClient(anyInt())).thenReturn(new ResponseEntity<ClientRequest>(client, HttpStatus.OK));
-
-//         Exception exception = assertThrows(ClientNotActiveException.class, () ->
-//                 this.orderService.makeOrder(request));
-//         assertEquals("Cliente não está ativo e não pode realizar pedidos.", exception.getMessage());
-//         assertEquals(ClientNotActiveException.class, exception.getClass());
-//     }
-// }
+}
