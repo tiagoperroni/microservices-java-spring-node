@@ -10,8 +10,8 @@ class ProductService {
   }
 
   async findById(id) {     
-    let findProduct = await findProductById(id); 
-    if (findProduct == null) return { message: "Not found product with id " + productId};    
+    let findProduct = await findProductById(id);      
+    if (findProduct == null) throw new ProductException("Not found product with id " + id, 404);  
     const productResponse = { id: v4(), name: findProduct.name, price: findProduct.price, stock: findProduct.stock };   
     return productResponse;
   }
@@ -24,27 +24,27 @@ class ProductService {
   }
 
   async saveProduct(newProduct) {  
-    if (await this.verifyDuplicateProduct(newProduct)) return { message: "Already exists a product with this name." }
+    if (await this.verifyDuplicateProduct(newProduct)) throw new ProductException("Already exists a product with this name.", 400); 
     let productRequest = { name: newProduct.name, price: newProduct.price, stock: newProduct.stock };
-    if (productRequest.name === undefined || productRequest.price === undefined || productRequest.stock === undefined) {
-      return { message: "Please, informe all fields." };
+    if (productRequest.name === undefined || productRequest.price === undefined || productRequest.stock === undefined) {   
+      throw new ProductException("Please, informe all fields.", 400);
     }
     let product = await saveProduct(productRequest);
     return product;
   }
 
-  async updateProduct(productId, newProduct) {     
-    let findProduct = await findProductById(productId); 
-    if (findProduct == null) return { message: "Not found product with id " + productId}; 
+  async updateProduct(id, newProduct) {     
+    let findProduct = await findProductById(id);    
+    if (findProduct === null) throw new ProductException("Not found product with id " + id, 404); 
     let productRequest = { name: newProduct.name, price: newProduct.price, stock: newProduct.stock };    
     let product = await updateProduct(productId, productRequest);
     return product;
   }
 
-  async deleteProduct(productId) {   
-    let findProduct = await findProductById(productId); 
-    if (findProduct == null) return { message: "Not found product with id " + productId};        
-    await deleteProduct(productId);
+  async deleteProduct(id) {   
+    let findProduct = await findProductById(id); 
+    if (findProduct == null) throw new ProductException("Not found product with id " + id, 404);         
+    await deleteProduct(id);
     return { message: "Produto was deleted with success." };
   }
 
@@ -56,10 +56,6 @@ class ProductService {
     product.stock -= +quantity;
     this.updateProduct(id, product);
     return product;
-  }
-
-  verifyStock() {
-
   }
 
   async verifyDuplicateProduct(product) {

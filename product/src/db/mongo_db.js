@@ -5,8 +5,11 @@ const conectDB = async () => {
 
     try {
 
-        await mongoose.connect(process.env.DB_MONGO, {                     
+        await mongoose.connect(process.env.DB_MONGO, {   
+            //Observe que, se você especificar useNewUrlParser: true, deverá especificar uma porta em sua string de conexão                  
             useNewUrlParser: true,
+            //Falso por padrão. Defina para true se optar por usar o novo mecanismo de gerenciamento de conexão do driver MongoDB. 
+            //Você deve definir essa opção como true, exceto no caso improvável de impedir que você mantenha uma conexão estável.
             useUnifiedTopology: true
            
         });
