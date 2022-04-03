@@ -7,7 +7,7 @@ import java.util.Map;
 import com.tiagoperroni.order.models.Order;
 import com.tiagoperroni.order.models.OrderRequest;
 import com.tiagoperroni.order.models.OrderResponse;
-import com.tiagoperroni.order.service.OrderListGet;
+import com.tiagoperroni.order.service.OrderListGetService;
 import com.tiagoperroni.order.service.OrderService;
 
 import io.github.resilience4j.retry.annotation.Retry;
@@ -34,7 +34,7 @@ public class OrderController {
     private OrderService orderService;   
 
     @Autowired
-    private OrderListGet orderListGet;
+    private OrderListGetService orderListGet;
 
     // private Logger logger = LoggerFactory.getLogger(OrderService.class);
 
@@ -45,7 +45,7 @@ public class OrderController {
         return new ResponseEntity<>(this.orderListGet.getOrderByEmail(email), HttpStatus.OK);
     }   
 
-    private ResponseEntity<Map<String, String>> retryForClientRequestFallBack(Throwable ex) {
+    public ResponseEntity<Map<String, String>> retryForClientRequestFallBack(Throwable ex) {
         var error = new HashMap<String, String>();
         error.put("message", "authentication microservice is down.");
         return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
@@ -59,7 +59,7 @@ public class OrderController {
         return new ResponseEntity<>(orderService.makeOrder(request, token), HttpStatus.CREATED);
     }
 
-    private ResponseEntity<Map<String, String>> ordersFallBack(Throwable ex) {
+    public ResponseEntity<Map<String, String>> ordersFallBack(Throwable ex) {
         var error = new HashMap<String, String>();
         if (ex.getMessage().contains("product")) {
             error.put("error", "Microservice Product-Api is down.");

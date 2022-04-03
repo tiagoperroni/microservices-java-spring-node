@@ -1,4 +1,5 @@
 package com.tiagoperroni.order.service;
+import com.tiagoperroni.order.exceptions.*;
 import com.tiagoperroni.order.feign.AuthenticationRequestToken;
 import com.tiagoperroni.order.feign.ClientFeignRequest;
 import com.tiagoperroni.order.feign.ProductFeignRequest;
@@ -59,34 +60,18 @@ class OrderServiceTest {
     @Test
     public void testMakeOrder_Success() {
 
-        var clientRequest = new ClientRequest();
-        clientRequest.setId(1);
-        clientRequest.setEmail("tiago@gmail.com");
-        clientRequest.setIsActive(true);
-        var adress = new AdressRequest();
-        adress.setCep("8754");
-        clientRequest.setAdress(adress);
-
         when(this.authenticationRequestToken.getToken(anyString()))
                 .thenReturn(new ResponseEntity<String>("12345", HttpStatus.OK));
 
         when(this.clientFeignRequest.getClient(anyString()))
-                .thenReturn(new ResponseEntity<ClientRequest>(clientRequest, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<ClientRequest>(this.getClientRequest(), HttpStatus.OK));
 
-        var orderRequest = new OrderRequest();
-        orderRequest.setClientEmail("tiago@gmail.com");
-        when(this.clientLoginService.verifyTokenIsValid(orderRequest, "12345")).thenReturn(true);
+        when(this.clientLoginService.verifyTokenIsValid(this.getOrderRequest(), "12345")).thenReturn(true);
 
-        var product = new Product();
-        product.setId("123");
-        product.setPrice(7.98);
-        product.setStock(100);
         when(this.productFeignRequest.getProductById(anyString()))
-                .thenReturn(new ResponseEntity<Product>(product, HttpStatus.OK));
+                .thenReturn(new ResponseEntity<Product>(this.getProduct(), HttpStatus.OK));
 
-        var order = new Order();
-        order.setId(1); order.setClientEmail("tiago@gmail.com");
-        when(this.orderRepository.save(any())).thenReturn(order);
+        when(this.orderRepository.save(any())).thenReturn(this.getOrder());
 
         when(this.productFeignRequest.updateStockRequest(anyString(), anyInt())).thenReturn(new ResponseEntity<Void>(HttpStatus.OK));
 
@@ -94,16 +79,110 @@ class OrderServiceTest {
 
         doNothing().when(this.kafka).sendMessage(anyString());
 
-        var newOrderRequest = new OrderRequest();
-        newOrderRequest.setClientEmail("tiago@gmail.com");
-        var newProduct = new ProductList();
-        newProduct.setId("123"); newProduct.setQuantity(3);
-        List<ProductList> productList = new ArrayList<>(Arrays.asList(newProduct));
-        newOrderRequest.setProductList(productList);
-        var newOrder = this.orderService.makeOrder(newOrderRequest, "12345");
+        var newOrder = this.orderService.makeOrder(this.getRequest(), "12345");
 
         assertEquals(1, newOrder.getId());
         assertEquals("tiago@gmail.com", newOrder.getClient().getEmail());
+    }
+
+    @Test
+    public void testGetClientRequest_ShouldBeFail() {
+
+        when(this.clientFeignRequest.getClient(anyString())).thenReturn(new ResponseEntity<ClientRequest>(HttpStatus.OK));
+
+        Exception ex = assertThrows(ClientNotFoundException.class, () -> {
+            this.orderService.getClientRequest("tiago@gmail.com");
+        });
+        assertEquals("Client with e-mail tiago@gmail.com not was found.", ex.getMessage().toString());
+        assertEquals(ClientNotFoundException.class, ex.getClass());
+    }
+
+    @Test
+    public void testValidaStock_ShouldBeFail() {
+
+        var product = new Product();
+        product.setStock(2);
+        Exception ex = assertThrows(StockNotAvaibleException.class, () -> {
+            this.orderService.validaStock(product, 10);
+        });
+        assertEquals("Quantidade solicitada do produto null está acima do estoque. Quantidade atual é 2", ex.getMessage());
+        assertEquals(StockNotAvaibleException.class, ex.getClass());
+    }
+
+    @Test
+    public void testCheckClientIsValid_ShouldBeFail() {
+
+        var client = new ClientRequest();
+        client.setIsActive(false);
+
+        Exception ex = assertThrows(ClientNotActiveException.class, () -> {
+            this.orderService.checkClientIsValid(client);
+        });
+        assertEquals("Cliente não está ativo e não pode realizar pedidos.", ex.getMessage());
+        assertEquals(ClientNotActiveException.class, ex.getClass());
+    }
+
+    @Test
+    public void testVerifyTokenEmpty_ShouldBeFail() {
+
+        Exception ex = assertThrows(InvalidTokenException.class, () -> {
+            this.orderService.verifyToken(new OrderRequest(), "");
+        });
+        assertEquals("The token must be informed.", ex.getMessage());
+        assertEquals(InvalidTokenException.class, ex.getClass());
+    }
+
+    @Test
+    public void testVerifyToken_ShouldBeFail() {
+
+        Exception ex = assertThrows(ValidateDataException.class, () -> {
+            this.orderService.verifyToken(new OrderRequest(), "123");
+        });
+        assertEquals("The e-mail of client must be informed.", ex.getMessage());
+        assertEquals(ValidateDataException.class, ex.getClass());
+    }
+
+    private OrderRequest getRequest() {
+        var newOrderRequest = new OrderRequest();
+        newOrderRequest.setClientEmail("tiago@gmail.com");
+        var newProduct = new ProductList();
+        newProduct.setId("123");
+        newProduct.setQuantity(3);
+        List<ProductList> productList = new ArrayList<>(Arrays.asList(newProduct));
+        newOrderRequest.setProductList(productList);
+        return newOrderRequest;
+    }
+
+    private Order getOrder() {
+        var order = new Order();
+        order.setId(1);
+        order.setClientEmail("tiago@gmail.com");
+        return order;
+    }
+
+    private Product getProduct() {
+        var product = new Product();
+        product.setId("123");
+        product.setPrice(7.98);
+        product.setStock(100);
+        return product;
+    }
+
+    private OrderRequest getOrderRequest() {
+        var orderRequest = new OrderRequest();
+        orderRequest.setClientEmail("tiago@gmail.com");
+        return orderRequest;
+    }
+
+    private ClientRequest getClientRequest() {
+        var clientRequest = new ClientRequest();
+        clientRequest.setId(1);
+        clientRequest.setEmail("tiago@gmail.com");
+        clientRequest.setIsActive(true);
+        var adress = new AdressRequest();
+        adress.setCep("8754");
+        clientRequest.setAdress(adress);
+        return clientRequest;
     }
 
 }

@@ -23,4 +23,15 @@ public class OrderResponse {
     // @JsonFormat(pattern = "dd/MM/yyyy")
     private String orderDate;
 
+    public OrderResponse() {
+    }
+
+    public OrderResponse(Integer id, ClientRequest client, List<OrderItems> items, int quantityTotal, Double totalPrice, String orderDate) {
+        this.id = id;
+        this.client = client;
+        this.items = items;
+        this.quantityTotal = quantityTotal;
+        this.totalPrice = totalPrice;
+        this.orderDate = orderDate;
+    }
 }

@@ -151,7 +151,7 @@ public class OrderService {
      * @param product
      */
 
-    private void validaStock(Product product, int productRequest) {
+    public void validaStock(Product product, int productRequest) {
         if (product.getStock() >= productRequest) {             
         } else {
             throw new StockNotAvaibleException(
@@ -166,7 +166,7 @@ public class OrderService {
      * @param client
      */
 
-    private void checkClientIsValid(ClientRequest client) {
+    public void checkClientIsValid(ClientRequest client) {
         if (!client.getIsActive()) {
             throw new ClientNotActiveException("Cliente não está ativo e não pode realizar pedidos.");
         }
@@ -210,7 +210,7 @@ public class OrderService {
      */
 
     public void verifyToken(OrderRequest orderRequest, String token) {
-        if (token.equals(null)) {
+        if (token.equals(null) || token.isEmpty()) {
             throw new InvalidTokenException("The token must be informed.");
         } else if (orderRequest.getClientEmail() == null) {
             throw new ValidateDataException("The e-mail of client must be informed.");
