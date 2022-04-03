@@ -135,7 +135,7 @@ public class OrderService {
             orderItem.setProductName(productResponse.getName());
             orderItem.setProductPrice(productResponse.getPrice());
             orderItem.setQuantity(product.getQuantity());
-            orderItem.setTotal(product.getQuantity() * productResponse.getPrice());
+            orderItem.setTotal(this.formatTotalPriceProduct(product.getQuantity() * productResponse.getPrice()));
             orderItems.add(orderItem);
         }
         for (ProductList product : request.getProductList()) {
@@ -175,7 +175,7 @@ public class OrderService {
     /**
      * 
      * @param orderItems
-     * @return total do pedido calculado
+     * @return formata total do pedido calculado
      */
 
     private Double formatDouble(List<OrderItems> orderItems) {
@@ -186,6 +186,17 @@ public class OrderService {
             totalConvered = String.format("%.2f", total);
         }
         return Double.parseDouble(totalConvered.replace(",", "."));
+    }
+
+    /**
+     * Formata o valor total dentro da lista de produtos
+     * @param total
+     * @return
+     */
+
+    public Double formatTotalPriceProduct(Double total) {
+        String totalConverted = String.format("%.2f", total);
+        return Double.parseDouble(totalConverted.replace(",", "."));
     }
 
     /**

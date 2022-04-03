@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "authenticationclient")
 public interface TokenFeignRequest {
 
-    @GetMapping("/login/token{email}")
+    @GetMapping("/login/token/{email}")
     public ResponseEntity<String> getToken(@PathVariable("email") String email);
 
     @PostMapping("/login")

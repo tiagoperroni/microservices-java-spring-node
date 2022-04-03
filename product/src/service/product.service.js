@@ -35,14 +35,11 @@ class ProductService {
 
   async updateProduct(id, newProduct) { 
   
-    let findProduct = await findProductById(id);      
-    console.log("AQUI ===>>");
-    if (findProduct === null) throw new ProductException("Not found product with id " + id, 404); 
-    console.log("AQUI ===>>");    
+    let findProduct = await findProductById(id);
+    if (findProduct === null) throw new ProductException("Not found product with id " + id, 404);  
     let productModel = new ProductModel().convertProduct(newProduct);   
     productModel.id = id;
-    let product = await updateProduct(id, productModel);
-    console.log("AQUI ===>> AQUI");
+    let product = await updateProduct(id, productModel); 
     return product;
   }
 

@@ -40,9 +40,9 @@ public class ClientLoginService {
     public String clientLoginService(ClientLogin clientLogin) {
         logger.info("ClientLoginService request with e-mail: {}", clientLogin.getEmail());
         try {
-            var clientRequest = this.clientRequest.clientLogin(clientLogin.getEmail()).getBody();
-            this.verifyPassword(clientRequest, clientLogin);
+            var clientRequest = this.clientRequest.clientLogin(clientLogin.getEmail()).getBody();              
             if (clientRequest != null) {
+                this.verifyPassword(clientRequest, clientLogin);
                 String token = UUID.randomUUID().toString();
                 token += UUID.randomUUID().toString();
                 var clientLoginToken = new ClientLoginToken();
@@ -53,6 +53,7 @@ public class ClientLoginService {
                 logger.info("ClientLoginService response with token: {}", clientTokenResponse.getToken());
                 return "Token: " + token;
             }
+            if (clientRequest == null) throw new ClientNotFoundException("Não foi encontrado registro com este e-mail.");
         } catch (Exception e) {
             if (e.getMessage().contains("Not found client with")) {
                 throw new ClientNotFoundException(

@@ -63,6 +63,7 @@ public class ClientService {
     public ClientResponseLogin getClientLogin(String email) {
         logger.info("Service: Received a client LOGIN request with id: {}", email);
         var client = this.clientRepository.findByEmail(email).orElse(null);
+        if (client == null) return null;
         var clientResponseLogin = new ClientResponseLogin();
         clientResponseLogin.setEmail(client.getEmail());
         clientResponseLogin.setCpf(client.getCpf());
