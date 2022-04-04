@@ -1,6 +1,7 @@
 package com.tiagoperroni.order.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class OrderService {
         orderResponse.setItems(orderItems);
         orderResponse.setQuantityTotal(this.totalQuantity(orderItems));
         orderResponse.setTotalPrice(this.formatDouble(orderItems));
-        orderResponse.setOrderDate(LocalDate.now().toString());
+        orderResponse.setOrderDate(LocalDateTime.now());
 
         logger.info("OrderService - Salvando novo pedido no DB");
 
@@ -152,7 +153,7 @@ public class OrderService {
      */
 
     public void validaStock(Product product, int productRequest) {
-        if (product.getStock() >= productRequest) {             
+        if (product.getStock() >= productRequest) {
         } else {
             throw new StockNotAvaibleException(
                     String.format("Quantidade solicitada do produto %s está acima do estoque. Quantidade atual é %s",
@@ -190,6 +191,7 @@ public class OrderService {
 
     /**
      * Formata o valor total dentro da lista de produtos
+     * 
      * @param total
      * @return
      */

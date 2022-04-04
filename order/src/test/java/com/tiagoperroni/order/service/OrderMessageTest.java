@@ -13,6 +13,7 @@ import static org.mockito.Mockito.doNothing;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 public class OrderMessageTest {
@@ -36,7 +37,7 @@ public class OrderMessageTest {
         var message = new OrderResponse();
         message.setClient(new ClientRequest());
         message.setId(1);
-        message.setOrderDate("12");
+        message.setOrderDate(LocalDateTime.now());
         message.setItems(Arrays.asList(new OrderItems()));
         this.orderMessageService.sendOrderMessage(message);
     }

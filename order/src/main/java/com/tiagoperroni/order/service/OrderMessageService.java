@@ -31,7 +31,7 @@ public class OrderMessageService {
         orderMessage.setOrderItems(orderResponse.getItems());
         orderMessage.setTotalQuantity(orderResponse.getQuantityTotal());
         orderMessage.setTotalOrder(orderResponse.getTotalPrice());
-        orderMessage.setOrderDate(LocalDate.now().toString());
+        orderMessage.setOrderDate(orderResponse.getOrderDate().toString());
 
         ObjectMapper objectMapper = new ObjectMapper();
         String message;

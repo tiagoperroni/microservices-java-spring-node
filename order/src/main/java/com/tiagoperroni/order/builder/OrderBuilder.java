@@ -3,7 +3,8 @@
     import com.tiagoperroni.order.models.Order;
     import com.tiagoperroni.order.models.OrderItems;
 
-    import java.util.List;
+import java.time.LocalDateTime;
+import java.util.List;
 
     public class OrderBuilder {
 
@@ -16,7 +17,7 @@
         private List<OrderItems> items;
         private int quantityTotal;
         private Double totalPrice;
-        private String orderDate;
+        private LocalDateTime orderDate;
 
         public OrderBuilder id(Integer id) {
             this.id = id;
@@ -63,13 +64,23 @@
             return this;
         }
 
-        public OrderBuilder orderDate(String orderDate) {
+        public OrderBuilder orderDate(LocalDateTime orderDate) {
             this.orderDate = orderDate;
             return this;
         }
 
         public Order build() {
-            return new Order(id, clientName, clientCpf, clientEmail, cep, numberOfHouse,
-                        items, quantityTotal, totalPrice, orderDate);
+            var order = new Order();
+            order.setId(this.id);
+            order.setClientName(this.clientName);
+            order.setClientEmail(this.clientEmail);
+            order.setClientCpf(this.clientCpf);
+            order.setOrderDate(this.orderDate);
+            order.setItems(this.items);
+            order.setCep(this.cep);
+            order.setNumberOfHouse(this.numberOfHouse);
+            order.setQuantityTotal(this.quantityTotal);
+            order.setTotalPrice(this.totalPrice);
+            return order;
         }
     }

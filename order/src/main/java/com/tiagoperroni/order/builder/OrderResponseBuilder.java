@@ -4,6 +4,7 @@ import com.tiagoperroni.order.models.ClientRequest;
 import com.tiagoperroni.order.models.OrderItems;
 import com.tiagoperroni.order.models.OrderResponse;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderResponseBuilder {
@@ -13,7 +14,7 @@ public class OrderResponseBuilder {
     private List<OrderItems> items;
     private int quantityTotal;
     private Double totalPrice;
-    private String orderDate;
+    private LocalDateTime orderDate;
 
     public OrderResponseBuilder id(Integer id) {
         this.id = id;
@@ -40,7 +41,7 @@ public class OrderResponseBuilder {
         return this;
     }
 
-    public OrderResponseBuilder orderDate(String orderDate) {
+    public OrderResponseBuilder orderDate(LocalDateTime orderDate) {
         this.orderDate = orderDate;
         return this;
     }

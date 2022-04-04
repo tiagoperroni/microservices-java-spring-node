@@ -1,5 +1,7 @@
 package com.tiagoperroni.order.mapper;
 
+import java.time.LocalDateTime;
+
 import com.tiagoperroni.order.models.Order;
 import com.tiagoperroni.order.models.OrderResponse;
 
@@ -16,8 +18,7 @@ public class OrderMapper {
         order.setItems(response.getItems());
         order.setQuantityTotal(response.getQuantityTotal());
         order.setTotalPrice(response.getTotalPrice());
-        order.setOrderDate(response.getOrderDate());
+        order.setOrderDate(LocalDateTime.now());
         return order;
     }
-    
 }
